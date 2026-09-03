@@ -1,0 +1,48 @@
+name: Bug Report
+description: File a bug report to help improve shotdock
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report an issue! Please ensure you have tested the latest release.
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of the bug.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this behavior?
+      placeholder: |
+        1. Run 'shotdock' or press shortcut
+        2. Select '...'
+        3. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: "Wayland Compositor & Version (e.g., Hyprland 0.45.0, Sway 1.9), Linux distro, GPU/Driver"
+      placeholder: "Arch Linux, Hyprland 0.45.0, AMDGPU"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs & Output
+      description: Output from terminal or journalctl if applicable.
+      render: shell

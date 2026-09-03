@@ -1,0 +1,23 @@
+[book]
+authors = ["Yasir <https://github.com/sirrryasir>"]
+language = "en"
+src = "src"
+title = "shotdock"
+description = "Modern floating screenshot and screen recording toolbar for Wayland"
+
+[output.html]
+git-repository-url = "https://github.com/sirrryasir/shotdock"
+edit-url-template = "https://github.com/sirrryasir/shotdock/edit/main/docs/{path}"
+site-url = "/shotdock/"
+default-theme = "coal"
+preferred-dark-theme = "coal"
+
+[output.html.search]
+enable = true
+limit-results = 20
+use-boolean-and = true
+boost-title = 2
+boost-hierarchy = 1
+boost-paragraph = 1
+expand = true
+heading-split-level = 3

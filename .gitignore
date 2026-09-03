@@ -1,0 +1,8 @@
+/target
+**/*.rs.bk
+Cargo.lock
+.DS_Store
+/docs/node_modules
+/docs/dist
+/docs/.astro
+/docs/book
