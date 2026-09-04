@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-fdfa1c8d.js";
+            window.path_to_searchindex_js = "../searchindex-699797b7.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-672a2b13.js"></script>
@@ -212,6 +212,24 @@
 </table>
 </div>
 <p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="../images/canvas_presentation.png" alt="Canvas Presentation"><span class="img-wrapper"><img src="../images/canvas_presentation.png" alt="Canvas Presentation"></span></label></p>
+<hr>
+<h2 id="headless-offline-image-framing"><a class="header" href="#headless-offline-image-framing">Headless Offline Image Framing</a></h2>
+<p>Frame existing image files directly from terminal, scripts, or CI/CD pipelines without launching the GUI:</p>
+<pre><code class="language-bash"># Basic framing (macOS titlebar + 16px radius + shadow)
+shotdock frame screenshot.png
+
+# Frame with custom output file
+shotdock frame terminal.png -o docs/terminal_framed.png
+
+# Apply gradient canvas background (e.g. sunset, breeze, candy, midnight, forest)
+shotdock frame window.png --theme sunset -o framed_card.png
+
+# Copy framed output directly to Wayland clipboard
+shotdock frame code.png -c
+
+# Strip titlebar or shadow for custom layouts
+shotdock frame app.png --no-titlebar --theme breeze
+</code></pre>
 
                     </main>
 

@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-fdfa1c8d.js";
+            window.path_to_searchindex_js = "../searchindex-699797b7.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-672a2b13.js"></script>
@@ -184,6 +184,7 @@
 <p>The configuration file is located at <code>~/.config/shotdock/config.json</code>:</p>
 <pre><code class="language-json">{
   "show_cursor": false,
+  "freeze": false,
   "window_shadow": true,
   "macos_titlebar": true,
   "canvas_theme": "Transparent",
@@ -196,12 +197,14 @@
   "ocr_lang": "eng",
   "studio_quality": true,
   "record_fps": 60
+}
 </code></pre>
 <p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="../images/toolbar_options.png" alt="Options Popover"><span class="img-wrapper"><img src="../images/toolbar_options.png" alt="Options Popover"></span></label></p>
 <hr>
 <h2 id="schema"><a class="header" href="#schema">Schema</a></h2>
 <ul>
 <li><code>show_cursor</code> (boolean): Include mouse cursor in screenshots. Default <code>false</code>.</li>
+<li><code>freeze</code> (boolean): Freeze screen animations during snip via <code>hyprpicker</code>. Default <code>false</code>.</li>
 <li><code>window_shadow</code> (boolean): Render 16px rounded corners and Gaussian drop shadow. Default <code>true</code>.</li>
 <li><code>macos_titlebar</code> (boolean): Add dark mock titlebar with window controls. Default <code>true</code>.</li>
 <li><code>canvas_theme</code> (string): Background canvas preset. Default <code>"Transparent"</code>.</li>

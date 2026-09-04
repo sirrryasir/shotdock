@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-fdfa1c8d.js";
+            window.path_to_searchindex_js = "../searchindex-699797b7.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-672a2b13.js"></script>
@@ -181,25 +181,42 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="capture-modes"><a class="header" href="#capture-modes">Capture Modes</a></h1>
-<p><code>shotdock</code> provides 4 primary capture modes, accessible from the floating dock or direct CLI flags.</p>
+<p><code>shotdock</code> provides 6 scriptable capture modes, accessible from compositor keybindings, CLI flags, or the floating dock.</p>
 <p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="../images/toolbar.png" alt="Toolbar"><span class="img-wrapper"><img src="../images/toolbar.png" alt="Toolbar"></span></label></p>
 <hr>
-<h2 id="1-fullscreen"><a class="header" href="#1-fullscreen">1. Fullscreen</a></h2>
-<p>Captures the currently focused monitor across Hyprland, Sway, and Niri:</p>
-<pre><code class="language-sh">shotdock -f
-</code></pre>
-<hr>
-<h2 id="2-active-window"><a class="header" href="#2-active-window">2. Active Window</a></h2>
-<p>Queries active window coordinates directly from the compositor IPC (<code>hyprctl activewindow</code>, <code>swaymsg -t get_tree</code>, or <code>niri msg --json focused-window</code>):</p>
-<pre><code class="language-sh">shotdock -w
-</code></pre>
-<hr>
-<h2 id="3-area-selection"><a class="header" href="#3-area-selection">3. Area Selection</a></h2>
-<p>Interactive drag-selection for arbitrary rectangular regions using <code>slurp</code>:</p>
+<h2 id="1-area-selection-with-window-snapping"><a class="header" href="#1-area-selection-with-window-snapping">1. Area Selection (with Window Snapping)</a></h2>
+<p>Interactive selection via <code>slurp</code>. Drag any arbitrary rectangular box, or <strong>single-click on any window</strong> to snap to its exact geometry:</p>
 <pre><code class="language-sh">shotdock -a
 </code></pre>
 <hr>
-<h2 id="4-optical-character-recognition-ocr"><a class="header" href="#4-optical-character-recognition-ocr">4. Optical Character Recognition (OCR)</a></h2>
+<h2 id="2-screen-freeze-selection"><a class="header" href="#2-screen-freeze-selection">2. Screen Freeze Selection</a></h2>
+<p>Freezes display buffers and moving video/animations during area selection via <code>hyprpicker</code>:</p>
+<pre><code class="language-sh"># Freeze screen during snip
+shotdock -a --freeze
+
+# Or shorthand
+shotdock -z
+</code></pre>
+<hr>
+<h2 id="3-active-window"><a class="header" href="#3-active-window">3. Active Window</a></h2>
+<p>Captures the currently focused window directly via compositor IPC (<code>hyprctl activewindow</code>, <code>swaymsg -t get_tree</code>, or <code>niri msg --json focused-window</code>):</p>
+<pre><code class="language-sh">shotdock -w
+</code></pre>
+<hr>
+<h2 id="4-focused-monitor"><a class="header" href="#4-focused-monitor">4. Focused Monitor</a></h2>
+<p>Captures the entire screen of the currently focused monitor:</p>
+<pre><code class="language-sh">shotdock -f
+</code></pre>
+<hr>
+<h2 id="5-all-connected-monitors"><a class="header" href="#5-all-connected-monitors">5. All Connected Monitors</a></h2>
+<p>Captures the full spanning desktop across all connected monitors (ideal for the <code>Print</code> key):</p>
+<pre><code class="language-sh">shotdock --all
+
+# Or shorthand
+shotdock -p
+</code></pre>
+<hr>
+<h2 id="6-optical-character-recognition-ocr"><a class="header" href="#6-optical-character-recognition-ocr">6. Optical Character Recognition (OCR)</a></h2>
 <p>Selects a screen region, runs Tesseract OCR engine, and copies plain text directly to the Wayland clipboard:</p>
 <pre><code class="language-sh">shotdock -t
 </code></pre>
