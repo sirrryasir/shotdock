@@ -1,31 +1,32 @@
 # shotdock
 
-Modern floating screenshot and screen recording toolbar for Wayland compositors (Hyprland, Sway, Wayfire).
+Modern floating screenshot and 4K screen recording dock for Wayland compositors (**Hyprland**, **Sway**, **Niri**, **Wayfire**).
 
-`shotdock` provides an anchored, responsive floating pill toolbar with deep compositor integration, window framing, soft drop shadows, and canvas backgrounds.
+![shotdock demo](assets/demo.gif)
+
+`shotdock` provides an anchored floating pill dock, macOS window framing, soft drop shadows, 60 FPS studio recording, and presentation canvas themes.
+
+---
+
+## Showcase
+
+| Floating Dock | Presentation Canvas |
+|:---:|:---:|
+| ![Floating Dock](assets/toolbar.png) | ![Canvas Theme](assets/canvas_presentation.png) |
 
 ---
 
 ## Features
 
-- **Interactive Floating Dock**: Responsive GTK4 LayerShell dock anchored seamlessly with backdrop blur and smooth transitions.
-- **macOS Window Framing**: Automatic 16px anti-aliased rounded corners, omnidirectional Gaussian drop shadows, and dark mock window titlebars with traffic lights (`🔴 🟡 🟢`).
-- **Canvas Background Palettes**:
-  - `Transparent`: Clean 32-bit alpha PNG with natural drop shadow.
-  - `Follow System (Wallbash)`: Generates dynamic gradient backgrounds matching your active Hyprland wallpaper palette.
-  - `Real Wallpaper (Blurred)`: Centers your window over your active desktop wallpaper with Gaussian blur.
-  - `Aesthetic Gradients`: Sunset, Candy, Breeze, Raindrop, Midnight, and Forest.
-  - `Solid Canvas`: Clean White and Dark Charcoal.
-- **Universal Capture Modes**:
-  - `󰹑 Fullscreen`: Captures the currently focused monitor or spans displays.
-  - ` Active Window`: Automatically detects focused Hyprland window boundaries.
-  - `󰒅 Area Selection`: Drag to snip any region, terminal snippet, or code block into a presentation-ready card.
-  - `󰈙 OCR (Optical Character Recognition)`: Snip any image or screen text to extract plain text directly to the clipboard via Tesseract.
-  - `󰕧 / 󰑋 Screen Recording`: High-performance H.264/MP4 recording with isolated PID lifecycle and one-click playback.
-- **Rich Notification Preview Cards**:
-  - Full-width image thumbnail preview directly in SwayNC / notification center.
-  - Interactive action buttons: `[ Annotate ]` (Swappy) and `[ Delete ]` (removes file from disk).
-  - Clean status messages without raw path clutter.
+- Floating GTK4 LayerShell dock for Wayland.
+- Window framing: 16px rounded corners, multi-pass Gaussian drop shadow, dark mock titlebars.
+- 60 FPS H.264 screen recording (CRF 18) via wf-recorder with isolated PID tracking.
+- Multi-compositor query integration: Hyprland (`hyprctl`), Sway (`swaymsg`), Niri (`niri msg`).
+- Canvas backgrounds: transparent PNG, dynamic Wallbash/Pywal palette matching, blurred wallpaper, solid colors, and gradients.
+- Capture modes: Fullscreen (focused monitor), Active Window, Area selection, OCR text extraction via Tesseract, Screen Recording.
+- Notification preview actions: annotate (`satty` / `swappy` auto-detected), delete file.
+- Direct POSIX syscalls (`getuid`, `kill`) and isolated runtime directory (`$XDG_RUNTIME_DIR/shotdock`, mode 0700).
+- Roadmap: see [ROADMAP.md](ROADMAP.md).
 
 ---
 
@@ -40,7 +41,7 @@ Runtime requirements:
 - `libnotify` (`notify-send`)
 - `tesseract` (optional, for OCR text extraction)
 - `wf-recorder` (optional, for video screen recording)
-- `swappy` (optional, for screenshot annotation)
+- `satty` or `swappy` (optional, for screenshot annotation)
 
 ### Arch Linux
 
@@ -48,13 +49,17 @@ Runtime requirements:
 sudo pacman -S gtk4 gtk4-layer-shell grim slurp imagemagick wl-clipboard libnotify tesseract tesseract-data-eng wf-recorder swappy
 ```
 
+### Fedora
+
+```sh
+sudo dnf install gtk4-devel gtk4-layer-shell-devel grim slurp ImageMagick wl-clipboard libnotify tesseract wf-recorder swappy
+```
+
 ---
 
 ## Build and Installation
 
 ### Arch Linux (AUR)
-
-`shotdock` is available on Arch Linux via the AUR:
 
 ```sh
 # Using yay
@@ -100,11 +105,11 @@ shotdock
 Bypass the GUI for instant scriptable hotkeys:
 
 ```sh
-shotdock -f        # Capture focused screen
-shotdock -a        # Interactively snip selected area
-shotdock -w        # Capture active window
-shotdock -t        # Extract text from area (OCR)
-shotdock -r        # Toggle fullscreen video recording
+shotdock -f            # Capture focused screen
+shotdock -a            # Interactively snip selected area
+shotdock -w            # Capture active window
+shotdock -t            # Extract text from area (OCR)
+shotdock -r            # Toggle fullscreen 60 FPS video recording
 shotdock --record-area # Toggle area video recording
 ```
 
@@ -124,7 +129,11 @@ Configuration is stored at `~/.config/shotdock/config.json`. Options are saved a
   "save_to_disk": true,
   "copy_to_clipboard": true,
   "open_in_editor": false,
-  "save_dir": "~/Pictures/Screenshots"
+  "save_dir": "~/Pictures/Screenshots",
+  "editor": null,
+  "ocr_lang": "eng",
+  "studio_quality": true,
+  "record_fps": 60
 }
 ```
 
@@ -154,6 +163,11 @@ Add the following to `~/.config/hypr/hyprland.conf`:
 # Keybinding
 bind = SUPER SHIFT, D, exec, shotdock
 
+# Direct shortcuts
+bind = SUPER, P, exec, shotdock -a
+bind = SUPER CTRL, P, exec, shotdock -w
+bind = SUPER ALT, P, exec, shotdock -f
+
 # Layer rules for backdrop blur
 layerrule = blur, shotdock
 layerrule = ignorezero, shotdock
@@ -165,7 +179,26 @@ Add to `~/.config/sway/config`:
 
 ```ini
 bindsym $mod+Shift+d exec shotdock
+bindsym $mod+p exec shotdock -a
 ```
+
+### Niri
+
+Add to `~/.config/niri/config.kdl`:
+
+```kdl
+binds {
+    Mod+Shift+D { spawn "shotdock"; }
+    Mod+P { spawn "shotdock" "-a"; }
+}
+```
+
+---
+
+## Contributing & Roadmap
+
+- [ROADMAP.md](ROADMAP.md) - Active milestones and features.
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Environment setup, engineering standards, and PR workflows.
 
 ---
 

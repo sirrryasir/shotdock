@@ -1,46 +1,92 @@
 # Contributing to shotdock
 
-Thank you for your interest in contributing to `shotdock`! We welcome bug reports, feature requests, documentation improvements, and code contributions.
+Check [ROADMAP.md](ROADMAP.md) for open items and planned milestones.
 
-## Development Workflow
+---
+
+## Codebase Architecture
+
+The project is structured into focused modules:
+
+| Module | Responsibility |
+| :--- | :--- |
+| [`src/main.rs`](src/main.rs) | CLI flag parsing, single-instance runtime PID toggling, GTK4 application launch. |
+| [`src/capture.rs`](src/capture.rs) | Capture pipelines, multi-compositor detection (Hyprland, Sway, Niri), ImageMagick 4K processing, `wf-recorder` lifecycle. |
+| [`src/ui.rs`](src/ui.rs) | Floating dock widget tree, GTK4 LayerShell anchoring, focused monitor placement, options popover. |
+| [`src/config.rs`](src/config.rs) | JSON persistence at `~/.config/shotdock/config.json`, defaults, and backward compatibility. |
+| [`src/theme.rs`](src/theme.rs) | CSS generation, wallbash/pywal color extraction, responsive glassmorphism styles. |
+
+---
+
+## Development Setup
 
 ### Prerequisites
 
-- Rust 1.85+ (or latest stable)
+- Rust stable (2024 edition)
 - GTK4 & GTK4 Layer Shell development libraries
-- A Wayland session (Hyprland, Sway, etc.)
+- A Wayland session with layer-shell support (Hyprland, Sway, Niri, River, Wayfire)
 
-On Arch Linux:
+**Arch Linux:**
 ```sh
-sudo pacman -S gtk4 gtk4-layer-shell grim slurp imagemagick wl-clipboard libnotify tesseract wf-recorder swappy
+sudo pacman -S gtk4 gtk4-layer-shell grim slurp imagemagick wl-clipboard libnotify tesseract wf-recorder swappy satty
 ```
 
-### Local Build & Testing
+**Fedora:**
+```sh
+sudo dnf install gtk4-devel gtk4-layer-shell-devel grim slurp ImageMagick wl-clipboard libnotify tesseract wf-recorder
+```
+
+**Ubuntu / Debian (24.04+):**
+```sh
+sudo apt install libgtk-4-dev libgtk4-layer-shell-dev grim slurp imagemagick wl-clipboard libnotify-bin tesseract-ocr wf-recorder
+```
+
+---
+
+## Local Build & Verification
+
+Always verify your changes compile with zero warnings before opening a PR:
 
 ```sh
-# Clone your fork
-git clone https://github.com/your-username/shotdock.git
-cd shotdock
+# Fast syntax & type check
+cargo check
 
-# Check lints
+# Enforce strict clippy linter standards (zero warnings)
 cargo clippy -- -D warnings
 
-# Format check
+# Ensure code formatting matches rustfmt
 cargo fmt --check
 
-# Build and run
-cargo run --
+# Test release build
+cargo build --release
+
+# Run locally
+./target/release/shotdock
 ```
 
-### Coding Standards
+---
 
-- Run `cargo fmt` prior to committing.
-- Ensure `cargo clippy -- -D warnings` produces zero warnings.
-- Keep subprocess communication robust and process-isolated.
-- Write commit messages following the Conventional Commits specification (`feat: ...`, `fix: ...`, `docs: ...`, `refactor: ...`).
+## Engineering & Security Standards
 
-## Pull Requests
+1. **Memory & File Safety**:
+   - Never write sensitive user data (previews, PIDs, recordings) to world-writable `/tmp`. Always use `capture::get_runtime_dir()` (`$XDG_RUNTIME_DIR/shotdock`, mode `0700`).
+2. **Process Verification**:
+   - Never kill processes blindly by PID without verifying process identity (e.g. via `is_process_running_with_comm`).
+   - Scope any process searches to the current user (`-u <UID>`).
+3. **Idiomatic Rust**:
+   - Zero tolerance for uncontrolled panics (`unwrap()` / `expect()`) in runtime code. Use `?`, `if let`, or `let-else` chains.
+   - Avoid unnecessary allocations and unnecessary `.clone()` calls.
+4. **Git Commit Messages**:
+   - Follow Conventional Commits: `feat: ...`, `fix: ...`, `docs: ...`, `refactor: ...`, `perf: ...`.
 
-1. Fork the repo and create your branch from `main`.
-2. Ensure existing functionality continues to work.
-3. Submit a Pull Request describing your changes clearly.
+---
+
+## Submitting a Pull Request
+
+1. Fork the repository and create a descriptive branch:
+   ```sh
+   git checkout -b feat/phase2-xdg-portal
+   ```
+2. Commit your changes with clear messages.
+3. Open a Pull Request referencing the related issue or roadmap item.
+4. Pull requests are reviewed within 48 hours.

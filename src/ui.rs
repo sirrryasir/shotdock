@@ -1,5 +1,7 @@
 use crate::capture::{CaptureMode, execute_capture};
+use crate::compositor;
 use crate::config::{CanvasTheme, Config};
+use crate::runtime;
 use crate::theme::ThemeColors;
 use gtk4::gdk::Display;
 use gtk4::prelude::*;
@@ -42,30 +44,17 @@ pub fn build_ui(app: &Application) {
     window.set_anchor(Edge::Bottom, true);
     window.set_margin(Edge::Bottom, 28);
 
-    // Target the currently focused monitor in Hyprland
-    if let Some(display) = Display::default() {
-        let focused_name = std::process::Command::new("hyprctl")
-            .args(["monitors", "-j"])
-            .output()
-            .ok()
-            .and_then(|out| serde_json::from_slice::<serde_json::Value>(&out.stdout).ok())
-            .and_then(|monitors| {
-                monitors.as_array().and_then(|arr| {
-                    arr.iter()
-                        .find(|m| m.get("focused").and_then(|f| f.as_bool()) == Some(true))
-                        .and_then(|m| m.get("name").and_then(|n| n.as_str()).map(String::from))
-                })
-            });
-
-        if let Some(name) = focused_name {
-            let monitors = display.monitors();
-            for i in 0..monitors.n_items() {
-                if let Some(mon) = monitors.item(i).and_downcast::<gtk4::gdk::Monitor>()
-                    && mon.connector().as_deref() == Some(&name)
-                {
-                    window.set_monitor(Some(&mon));
-                    break;
-                }
+    // Target the currently focused monitor across compositors
+    if let Some(display) = Display::default()
+        && let Some(name) = compositor::focused_output()
+    {
+        let monitors = display.monitors();
+        for i in 0..monitors.n_items() {
+            if let Some(mon) = monitors.item(i).and_downcast::<gtk4::gdk::Monitor>()
+                && mon.connector().as_deref() == Some(&name)
+            {
+                window.set_monitor(Some(&mon));
+                break;
             }
         }
     }
@@ -84,6 +73,7 @@ pub fn build_ui(app: &Application) {
     {
         let win = window.clone();
         close_btn.connect_clicked(move |_| {
+            runtime::cleanup_dock_pid();
             win.close();
         });
     }
@@ -233,7 +223,7 @@ pub fn build_ui(app: &Application) {
     }
     pop_content.append(&chk_shadow);
 
-    let chk_titlebar = CheckButton::with_label("macOS Header Mockup (🔴 🟡 🟢)");
+    let chk_titlebar = CheckButton::with_label("macOS Window Titlebar");
     chk_titlebar.set_active(config.borrow().macos_titlebar);
     {
         let config = config.clone();
@@ -363,7 +353,7 @@ pub fn build_ui(app: &Application) {
     }
     pop_content.append(&chk_clip);
 
-    let chk_editor = CheckButton::with_label("Open in Swappy Editor");
+    let chk_editor = CheckButton::with_label("Open in Editor (Satty / Swappy)");
     chk_editor.set_active(config.borrow().open_in_editor);
     {
         let config = config.clone();
@@ -381,19 +371,28 @@ pub fn build_ui(app: &Application) {
     let sep4 = Separator::new(Orientation::Vertical);
     main_box.append(&sep4);
 
-    // Connect Capture Button
-    {
+    // Shared execution trigger closure (deduplicated between mouse click and Return key)
+    let trigger_capture = {
         let window = window.clone();
         let selected_mode = selected_mode.clone();
         let config = config.clone();
-        action_btn.connect_clicked(move |_| {
+        Rc::new(move || {
             let mode = *selected_mode.borrow();
             let conf = config.borrow().clone();
             window.set_visible(false);
+            runtime::cleanup_dock_pid();
             gtk4::glib::timeout_add_local_once(std::time::Duration::from_millis(150), move || {
                 execute_capture(mode, &conf);
                 std::process::exit(0);
             });
+        })
+    };
+
+    // Connect Action Button
+    {
+        let trigger_capture = trigger_capture.clone();
+        action_btn.connect_clicked(move |_| {
+            trigger_capture();
         });
     }
     main_box.append(&action_btn);
@@ -402,24 +401,15 @@ pub fn build_ui(app: &Application) {
     let key_controller = EventControllerKey::new();
     {
         let window = window.clone();
-        let selected_mode = selected_mode.clone();
-        let config = config.clone();
+        let trigger_capture = trigger_capture.clone();
         key_controller.connect_key_pressed(move |_, keyval, _, _| match keyval.name().as_deref() {
             Some("Escape") => {
+                runtime::cleanup_dock_pid();
                 window.close();
                 gtk4::glib::Propagation::Stop
             }
             Some("Return") => {
-                let mode = *selected_mode.borrow();
-                let conf = config.borrow().clone();
-                window.set_visible(false);
-                gtk4::glib::timeout_add_local_once(
-                    std::time::Duration::from_millis(150),
-                    move || {
-                        execute_capture(mode, &conf);
-                        std::process::exit(0);
-                    },
-                );
+                trigger_capture();
                 gtk4::glib::Propagation::Stop
             }
             _ => gtk4::glib::Propagation::Proceed,

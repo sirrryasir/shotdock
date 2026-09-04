@@ -1,12 +1,31 @@
-## Isolated Recording Engine
+# Screen Recording
 
-`shotdock` integrates with `wf-recorder` for lightweight MP4/H.264 video captures:
+`shotdock` integrates with `wf-recorder` for hardware-accelerated H.264 video captures.
 
-- **PID Tracking**: Ensures recording processes can be started and stopped reliably without interfering with other compositor tasks.
-- **Region Recording**: Interactively select the screen area you want to capture as video.
-- **Interactive Open Action**: Click **Open Video** directly from the notification to play back the recording.
+---
+
+## Studio Quality Profile
+
+When `studio_quality` is enabled in configuration (default):
+- Codec: `libx264`
+- Rate control: Constant Rate Factor `crf=18` (visually lossless)
+- Frame rate: 60 FPS (`record_fps`)
+- Pixel format: `yuv420p`
+- Encoding preset: `veryfast`
+
+---
+
+## Process Isolation
+
+Recording instances are tracked via `$XDG_RUNTIME_DIR/shotdock/record.pid`. Starting or stopping recordings uses native POSIX `SIGINT` signaling without global process table collisions.
+
+---
+
+## CLI Shortcuts
 
 ```sh
-shotdock -r            # Toggle fullscreen recording
-shotdock --record-area # Toggle area recording
+shotdock -r            # Toggle fullscreen 60 FPS recording
+shotdock --record-area # Toggle selected region recording
 ```
+
+Stopping a recording generates a desktop notification with an `Open Video` action.

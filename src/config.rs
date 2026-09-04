@@ -36,6 +36,18 @@ pub struct Config {
     pub copy_to_clipboard: bool,
     pub open_in_editor: bool,
     pub save_dir: String,
+    #[serde(default)]
+    pub editor: Option<String>,
+    #[serde(default)]
+    pub ocr_lang: Option<String>,
+    #[serde(default = "default_true")]
+    pub studio_quality: bool,
+    #[serde(default = "default_fps")]
+    pub record_fps: u32,
+}
+
+fn default_fps() -> u32 {
+    60
 }
 
 impl Default for Config {
@@ -54,6 +66,10 @@ impl Default for Config {
             copy_to_clipboard: true,
             open_in_editor: false,
             save_dir,
+            editor: None,
+            ocr_lang: None,
+            studio_quality: true,
+            record_fps: 60,
         }
     }
 }
@@ -83,5 +99,30 @@ impl Config {
                 let _ = fs::write(path, json);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_config_defaults() {
+        let conf = Config::default();
+        assert!(conf.copy_to_clipboard);
+        assert!(conf.save_to_disk);
+        assert!(conf.studio_quality);
+        assert_eq!(conf.record_fps, 60);
+        assert_eq!(conf.canvas_theme, CanvasTheme::Transparent);
+    }
+
+    #[test]
+    fn test_config_serde_roundtrip() {
+        let conf = Config::default();
+        let serialized = serde_json::to_string(&conf).expect("serialization failed");
+        let deserialized: Config =
+            serde_json::from_str(&serialized).expect("deserialization failed");
+        assert_eq!(conf.copy_to_clipboard, deserialized.copy_to_clipboard);
+        assert_eq!(conf.save_dir, deserialized.save_dir);
     }
 }

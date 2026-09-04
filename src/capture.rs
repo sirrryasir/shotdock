@@ -1,4 +1,7 @@
-use crate::config::{CanvasTheme, Config};
+use crate::compositor;
+use crate::config::Config;
+use crate::image;
+use crate::runtime;
 use chrono::Local;
 use std::fs;
 use std::io::Write;
@@ -18,7 +21,6 @@ pub enum CaptureMode {
 }
 
 pub fn execute_capture(mode: CaptureMode, config: &Config) {
-    // Countdown timer if configured
     if config.timer_seconds > 0 {
         let _ = Command::new("notify-send")
             .args([
@@ -37,8 +39,8 @@ pub fn execute_capture(mode: CaptureMode, config: &Config) {
         CaptureMode::ActiveWindow => capture_active_window(config),
         CaptureMode::Area => capture_area(config),
         CaptureMode::TextOcr => capture_ocr(config),
-        CaptureMode::RecordScreen => toggle_screen_recording(false),
-        CaptureMode::RecordArea => toggle_screen_recording(true),
+        CaptureMode::RecordScreen => toggle_screen_recording(false, config),
+        CaptureMode::RecordArea => toggle_screen_recording(true, config),
     }
 }
 
@@ -64,86 +66,20 @@ fn capture_fullscreen(config: &Config) {
     if config.show_cursor {
         args.push("-c".to_string());
     }
-    // Check focused monitor
-    if let Ok(output) = Command::new("hyprctl").args(["monitors", "-j"]).output()
-        && let Ok(monitors) = serde_json::from_slice::<serde_json::Value>(&output.stdout)
-        && let Some(focused) = monitors.as_array().and_then(|arr| {
-            arr.iter()
-                .find(|m| m.get("focused").and_then(|f| f.as_bool()) == Some(true))
-        })
-        && let Some(name) = focused.get("name").and_then(|n| n.as_str())
-    {
+
+    if let Some(name) = compositor::focused_output() {
         args.push("-o".to_string());
-        args.push(name.to_string());
+        args.push(name);
     }
 
     let apply_decorations = config.window_shadow || config.macos_titlebar;
     run_grim_pipeline(&args, config, apply_decorations, config.macos_titlebar);
 }
 
-fn get_window_boxes() -> Option<String> {
-    let output = Command::new("hyprctl")
-        .args(["clients", "-j"])
-        .output()
-        .ok()?;
-    let clients: serde_json::Value = serde_json::from_slice(&output.stdout).ok()?;
-    let arr = clients.as_array()?;
-
-    let mut boxes = String::new();
-    for win in arr {
-        let mapped = win.get("mapped").and_then(|v| v.as_bool()).unwrap_or(false);
-        let ws = win
-            .get("workspace")
-            .and_then(|v| v.get("id"))
-            .and_then(|v| v.as_i64())
-            .unwrap_or(0);
-        if !mapped || ws <= 0 {
-            continue;
-        }
-        let at = win.get("at").and_then(|v| v.as_array());
-        let size = win.get("size").and_then(|v| v.as_array());
-        if let (Some(a), Some(s)) = (at, size)
-            && a.len() == 2
-            && s.len() == 2
-        {
-            let x = a[0].as_i64().unwrap_or(0);
-            let y = a[1].as_i64().unwrap_or(0);
-            let w = s[0].as_i64().unwrap_or(0);
-            let h = s[1].as_i64().unwrap_or(0);
-            if w > 10 && h > 10 {
-                boxes.push_str(&format!("{},{} {}x{}\n", x, y, w, h));
-            }
-        }
-    }
-    if boxes.is_empty() { None } else { Some(boxes) }
-}
-
-fn get_active_window_geom() -> Option<String> {
-    let output = Command::new("hyprctl")
-        .args(["activewindow", "-j"])
-        .output()
-        .ok()?;
-    let win: serde_json::Value = serde_json::from_slice(&output.stdout).ok()?;
-    let at = win.get("at").and_then(|v| v.as_array());
-    let size = win.get("size").and_then(|v| v.as_array());
-    if let (Some(a), Some(s)) = (at, size)
-        && a.len() == 2
-        && s.len() == 2
-    {
-        let x = a[0].as_i64().unwrap_or(0);
-        let y = a[1].as_i64().unwrap_or(0);
-        let w = s[0].as_i64().unwrap_or(0);
-        let h = s[1].as_i64().unwrap_or(0);
-        Some(format!("{},{} {}x{}", x, y, w, h))
-    } else {
-        None
-    }
-}
-
 fn capture_active_window(config: &Config) {
-    let active_geom = get_active_window_geom();
+    let active_geom = compositor::active_window_geometry();
 
-    let geom = if let Some(boxes) = get_window_boxes() {
+    let geom = if let Some(boxes) = compositor::window_boxes() {
         let child = Command::new("slurp")
             .args([
                 "-d",
@@ -192,28 +128,26 @@ fn capture_active_window(config: &Config) {
 }
 
 fn capture_area(config: &Config) {
-    // Run slurp to get geometry
     let slurp_out = Command::new("slurp")
         .args(["-d", "-b", "#00000088", "-c", "#00aaff", "-w", "2"])
         .output();
 
-    match slurp_out {
-        Ok(output) if output.status.success() => {
-            let geom = String::from_utf8_lossy(&output.stdout).trim().to_string();
-            if geom.is_empty() {
-                return;
-            }
-            let mut args = vec!["-g".to_string(), geom];
-            if config.show_cursor {
-                args.push("-c".to_string());
-            }
-            run_grim_pipeline(&args, config, config.window_shadow, config.macos_titlebar);
+    if let Ok(output) = slurp_out
+        && output.status.success()
+    {
+        let geom = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        if geom.is_empty() {
+            return;
         }
-        _ => {}
+        let mut args = vec!["-g".to_string(), geom];
+        if config.show_cursor {
+            args.push("-c".to_string());
+        }
+        run_grim_pipeline(&args, config, config.window_shadow, config.macos_titlebar);
     }
 }
 
-fn capture_ocr(_config: &Config) {
+fn capture_ocr(config: &Config) {
     let slurp_out = Command::new("slurp")
         .args([
             "-d",
@@ -237,11 +171,12 @@ fn capture_ocr(_config: &Config) {
         }
 
         let grim_out = Command::new("grim").args(["-g", &geom, "-"]).output();
+        let lang = config.ocr_lang.as_deref().unwrap_or("eng");
 
         if let Ok(grim_res) = grim_out
             && grim_res.status.success()
             && let Ok(mut tess) = Command::new("tesseract")
-                .args(["stdin", "stdout", "-l", "eng"])
+                .args(["stdin", "stdout", "-l", lang])
                 .stdin(Stdio::piped())
                 .stdout(Stdio::piped())
                 .stderr(Stdio::null())
@@ -294,295 +229,23 @@ fn capture_ocr(_config: &Config) {
         .spawn();
 }
 
-fn get_png_dimensions(data: &[u8]) -> Option<(u32, u32)> {
-    if data.len() < 24 || &data[0..8] != b"\x89PNG\r\n\x1a\n" {
-        return None;
-    }
-    let w = u32::from_be_bytes([data[16], data[17], data[18], data[19]]);
-    let h = u32::from_be_bytes([data[20], data[21], data[22], data[23]]);
-    Some((w, h))
-}
-
-fn get_wallbash_gradient() -> (String, String) {
-    let home = std::env::var("HOME").unwrap_or_default();
-    let dcol_path = format!("{}/.cache/dotfiles/wall.dcol", home);
-    if let Ok(content) = fs::read_to_string(dcol_path) {
-        let mut pry1 = String::new();
-        let mut a6 = String::new();
-        for line in content.lines() {
-            let line = line.trim();
-            if let Some((k, v)) = line.split_once('=') {
-                let val = v.trim_matches('"').trim().to_string();
-                if k == "dcol_pry1" {
-                    pry1 = val;
-                } else if k == "dcol_1xa6" {
-                    a6 = val;
-                }
-            }
-        }
-        if !pry1.is_empty() && !a6.is_empty() {
-            return (pry1, a6);
+fn resolve_preferred_editor(config: &Config) -> String {
+    if let Some(ref ed) = config.editor {
+        let trimmed = ed.trim();
+        if !trimmed.is_empty() {
+            return trimmed.to_string();
         }
     }
-    ("313B42".to_string(), "7AA4C2".to_string())
-}
-
-fn apply_macos_decorations(input: &[u8], add_titlebar: bool, theme: CanvasTheme) -> Vec<u8> {
-    let (w, mut h) = match get_png_dimensions(input) {
-        Some(dim) => dim,
-        None => return input.to_vec(),
-    };
-
-    let mut cmd = Command::new("magick");
-    cmd.arg("-");
-
-    if add_titlebar {
-        h += 34;
-        cmd.args([
-            "-background",
-            "#21252b",
-            "-splice",
-            "0x34",
-            "-fill",
-            "#ff5f56",
-            "-draw",
-            "circle 16,17 22,17",
-            "-fill",
-            "#ffbd2e",
-            "-draw",
-            "circle 36,17 42,17",
-            "-fill",
-            "#27c93f",
-            "-draw",
-            "circle 56,17 62,17",
-        ]);
+    if Command::new("which")
+        .arg("satty")
+        .output()
+        .map(|o| o.status.success())
+        .unwrap_or(false)
+    {
+        "satty".to_string()
+    } else {
+        "swappy".to_string()
     }
-
-    let rect_draw = format!(
-        "roundrectangle 0,0 {},{} 16,16",
-        w.saturating_sub(1),
-        h.saturating_sub(1)
-    );
-
-    cmd.args([
-        "-alpha",
-        "set",
-        "(",
-        "+clone",
-        "-alpha",
-        "transparent",
-        "-background",
-        "none",
-        "-fill",
-        "white",
-        "-draw",
-        &rect_draw,
-        ")",
-        "-compose",
-        "DstIn",
-        "-composite",
-        "(",
-        "+clone",
-        "-background",
-        "rgba(0,0,0,0.45)",
-        "-shadow",
-        "60x18+0+12",
-        ")",
-        "+swap",
-        "-background",
-        "none",
-        "-compose",
-        "Over",
-        "-layers",
-        "merge",
-        "+repage",
-    ]);
-
-    let cw = w + 120;
-    let ch = h + 130;
-    let size_arg = format!("{}x{}", cw, ch);
-
-    match theme {
-        CanvasTheme::Transparent => {
-            cmd.arg("png32:-");
-        }
-        CanvasTheme::FollowSystem => {
-            let (c1, c2) = get_wallbash_gradient();
-            let grad = format!("gradient:#{}-#{}", c1, c2);
-            cmd.args([
-                "(",
-                "-size",
-                &size_arg,
-                &grad,
-                ")",
-                "+swap",
-                "-gravity",
-                "center",
-                "-composite",
-                "png32:-",
-            ]);
-        }
-        CanvasTheme::RealWallpaper => {
-            let home = std::env::var("HOME").unwrap_or_default();
-            let blur_path = format!("{}/.cache/dotfiles/wall.blur", home);
-            let set_path = format!("{}/.cache/dotfiles/wall.set", home);
-            let wall_path = if std::path::Path::new(&blur_path).exists() {
-                blur_path
-            } else {
-                set_path
-            };
-
-            if std::path::Path::new(&wall_path).exists() {
-                cmd.args([
-                    "(",
-                    &wall_path,
-                    "-resize",
-                    &format!("{}^", size_arg),
-                    "-gravity",
-                    "center",
-                    "-extent",
-                    &size_arg,
-                    ")",
-                    "+swap",
-                    "-gravity",
-                    "center",
-                    "-composite",
-                    "png32:-",
-                ]);
-            } else {
-                cmd.arg("png32:-");
-            }
-        }
-        CanvasTheme::White => {
-            cmd.args([
-                "(",
-                "-size",
-                &size_arg,
-                "xc:#ffffff",
-                ")",
-                "+swap",
-                "-gravity",
-                "center",
-                "-composite",
-                "png32:-",
-            ]);
-        }
-        CanvasTheme::Black => {
-            cmd.args([
-                "(",
-                "-size",
-                &size_arg,
-                "xc:#18181b",
-                ")",
-                "+swap",
-                "-gravity",
-                "center",
-                "-composite",
-                "png32:-",
-            ]);
-        }
-        CanvasTheme::Sunset => {
-            cmd.args([
-                "(",
-                "-size",
-                &size_arg,
-                "gradient:#f43f5e-#8b5cf6",
-                ")",
-                "+swap",
-                "-gravity",
-                "center",
-                "-composite",
-                "png32:-",
-            ]);
-        }
-        CanvasTheme::Candy => {
-            cmd.args([
-                "(",
-                "-size",
-                &size_arg,
-                "gradient:#ec4899-#a855f7",
-                ")",
-                "+swap",
-                "-gravity",
-                "center",
-                "-composite",
-                "png32:-",
-            ]);
-        }
-        CanvasTheme::Breeze => {
-            cmd.args([
-                "(",
-                "-size",
-                &size_arg,
-                "gradient:#06b6d4-#3b82f6",
-                ")",
-                "+swap",
-                "-gravity",
-                "center",
-                "-composite",
-                "png32:-",
-            ]);
-        }
-        CanvasTheme::Raindrop => {
-            cmd.args([
-                "(",
-                "-size",
-                &size_arg,
-                "gradient:#3b82f6-#6366f1",
-                ")",
-                "+swap",
-                "-gravity",
-                "center",
-                "-composite",
-                "png32:-",
-            ]);
-        }
-        CanvasTheme::Midnight => {
-            cmd.args([
-                "(",
-                "-size",
-                &size_arg,
-                "gradient:#1e1b4b-#0f172a",
-                ")",
-                "+swap",
-                "-gravity",
-                "center",
-                "-composite",
-                "png32:-",
-            ]);
-        }
-        CanvasTheme::Forest => {
-            cmd.args([
-                "(",
-                "-size",
-                &size_arg,
-                "gradient:#059669-#10b981",
-                ")",
-                "+swap",
-                "-gravity",
-                "center",
-                "-composite",
-                "png32:-",
-            ]);
-        }
-    }
-
-    cmd.stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::null());
-
-    if let Ok(mut child) = cmd.spawn() {
-        if let Some(mut stdin) = child.stdin.take() {
-            let _ = stdin.write_all(input);
-        }
-        if let Ok(out) = child.wait_with_output()
-            && out.status.success()
-            && !out.stdout.is_empty()
-        {
-            return out.stdout;
-        }
-    }
-    input.to_vec()
 }
 
 fn run_grim_pipeline(
@@ -595,7 +258,6 @@ fn run_grim_pipeline(
     for arg in grim_args {
         cmd.arg(arg);
     }
-    // Output png data to stdout
     cmd.arg("-");
 
     let raw_output = match cmd.output() {
@@ -614,7 +276,7 @@ fn run_grim_pipeline(
     };
 
     let output = if apply_shadow {
-        apply_macos_decorations(&raw_output, add_titlebar, config.canvas_theme)
+        image::apply_macos_decorations(&raw_output, add_titlebar, config.canvas_theme)
     } else {
         raw_output
     };
@@ -643,8 +305,10 @@ fn run_grim_pipeline(
         let _ = child.wait();
     }
 
-    let preview_path = "/tmp/shotdock_latest.png";
-    let _ = fs::write(preview_path, &output);
+    let runtime_dir = runtime::get_runtime_dir();
+    let preview_path = runtime_dir.join("latest.png");
+    let preview_str = preview_path.to_string_lossy().to_string();
+    let _ = fs::write(&preview_path, &output);
 
     let (saved_file_arg, body_text) = match (&save_path, config.copy_to_clipboard) {
         (Some(p), true) => (
@@ -656,13 +320,17 @@ fn run_grim_pipeline(
         (None, false) => (String::new(), "Capture complete"),
     };
 
+    let editor_bin = resolve_preferred_editor(config);
+
     if config.open_in_editor {
         let editor_target = if !saved_file_arg.is_empty() {
             &saved_file_arg
         } else {
-            preview_path
+            &preview_str
         };
-        let _ = Command::new("swappy").args(["-f", editor_target]).spawn();
+        let _ = Command::new(&editor_bin)
+            .args(["-f", editor_target])
+            .spawn();
     }
 
     let _ = Command::new("sh")
@@ -677,36 +345,45 @@ fi
 
 if [ "$action" = "annotate" ]; then
     target="${2:-$1}"
-    swappy -f "$target"
+    if command -v "$4" >/dev/null 2>&1; then
+        "$4" -f "$target"
+    elif command -v satty >/dev/null 2>&1; then
+        satty -f "$target"
+    elif command -v swappy >/dev/null 2>&1; then
+        swappy -f "$target"
+    fi
 elif [ "$action" = "delete" ] && [ -n "$2" ]; then
-    rm -f "$2"
+    rm -f -- "$2"
     notify-send -a "shotdock" -t 2000 "Screenshot Deleted" "File removed."
 fi
 "#,
             "shotdock-action",
-            preview_path,
+            &preview_str,
             &saved_file_arg,
             body_text,
+            &editor_bin,
         ])
         .spawn();
 }
 
-fn toggle_screen_recording(is_area: bool) {
-    let pid_file = "/tmp/shotdock_record.pid";
-    let file_track = "/tmp/shotdock_record_file.txt";
+fn toggle_screen_recording(is_area: bool, config: &Config) {
+    let runtime_dir = runtime::get_runtime_dir();
+    let pid_file = runtime_dir.join("record.pid");
+    let file_track = runtime_dir.join("record_file.txt");
 
-    if std::path::Path::new(pid_file).exists() {
-        if let Ok(pid_str) = fs::read_to_string(pid_file) {
-            let pid = pid_str.trim();
-            if !pid.is_empty() {
-                let _ = Command::new("kill").args(["-INT", pid]).status();
-            }
+    if pid_file.exists() {
+        if let Ok(pid_str) = fs::read_to_string(&pid_file)
+            && let Ok(pid) = pid_str.trim().parse::<u32>()
+            && runtime::is_process_running_with_comm(pid, "wf-recorder")
+        {
+            runtime::send_signal(pid, runtime::SIGINT);
         }
-        let _ = fs::remove_file(pid_file);
+        let _ = fs::remove_file(&pid_file);
 
-        let target_file = fs::read_to_string(file_track).unwrap_or_default();
-        let _ = fs::remove_file(file_track);
+        let target_file = fs::read_to_string(&file_track).unwrap_or_default();
+        let _ = fs::remove_file(&file_track);
 
+        let target_clean = target_file.trim().to_string();
         let _ = Command::new("sh")
             .args([
                 "-c",
@@ -714,27 +391,21 @@ fn toggle_screen_recording(is_area: bool) {
 if [ -n "$1" ] && [ -f "$1" ]; then
     action=$(notify-send -a "shotdock" -A "open=Open Video" "Recording Stopped" "Saved to Videos/Recordings")
     if [ "$action" = "open" ]; then
-        xdg-open "$1"
+        xdg-open -- "$1"
     fi
 else
     notify-send -a "shotdock" "Recording Stopped" "Saved to Videos/Recordings"
 fi
 "#,
                 "shotdock-record-action",
-                target_file.trim(),
+                &target_clean,
             ])
             .spawn();
         return;
     }
 
-    // Check if wf-recorder is running outside
-    let check = Command::new("pgrep").args(["-x", "wf-recorder"]).output();
-    if let Ok(res) = check
-        && res.status.success()
-    {
-        let _ = Command::new("pkill")
-            .args(["-INT", "-x", "wf-recorder"])
-            .status();
+    if runtime::is_user_process_running("wf-recorder") {
+        runtime::pkill_user_process("wf-recorder", "-INT");
         let _ = Command::new("notify-send")
             .args([
                 "-a",
@@ -757,6 +428,22 @@ fi
         let mut cmd = Command::new("wf-recorder");
         cmd.args(["-f", &save_file]);
 
+        if config.studio_quality {
+            let fps = config.record_fps.max(30).to_string();
+            cmd.args([
+                "-c",
+                "libx264",
+                "-p",
+                "crf=18",
+                "-p",
+                "preset=veryfast",
+                "-p",
+                "pix_fmt=yuv420p",
+                "-r",
+                &fps,
+            ]);
+        }
+
         if is_area {
             if let Ok(slurp_out) = Command::new("slurp").output() {
                 let geom = String::from_utf8_lossy(&slurp_out.stdout)
@@ -773,8 +460,8 @@ fi
 
         if let Ok(child) = cmd.spawn() {
             let pid = child.id();
-            let _ = fs::write(pid_file, pid.to_string());
-            let _ = fs::write(file_track, &save_file);
+            let _ = fs::write(&pid_file, pid.to_string());
+            let _ = fs::write(&file_track, &save_file);
 
             let _ = Command::new("notify-send")
                 .args([

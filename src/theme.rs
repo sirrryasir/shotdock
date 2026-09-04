@@ -31,15 +31,20 @@ impl ThemeColors {
             Err(_) => return Self::default(),
         };
 
-        let dcol_path = PathBuf::from(home).join(".cache/dotfiles/wall.dcol");
-        if !dcol_path.exists() {
+        let candidate_paths = [
+            PathBuf::from(&home).join(".cache/dotfiles/wall.dcol"),
+            PathBuf::from(&home).join(".cache/wallbash/wall.dcol"),
+            PathBuf::from(&home).join(".cache/wallbash/compiled/wall.dcol"),
+        ];
+
+        let content = candidate_paths
+            .iter()
+            .find_map(|p| fs::read_to_string(p).ok())
+            .unwrap_or_default();
+
+        if content.is_empty() {
             return Self::default();
         }
-
-        let content = match fs::read_to_string(dcol_path) {
-            Ok(c) => c,
-            Err(_) => return Self::default(),
-        };
 
         let mut vars = HashMap::new();
         for line in content.lines() {
@@ -220,4 +225,48 @@ fn parse_hex(hex: &str) -> Option<(u8, u8, u8)> {
     let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
     let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
     Some((r, g, b))
+}
+
+pub fn get_wallbash_gradient() -> (String, String) {
+    let home = std::env::var("HOME").unwrap_or_default();
+    let candidate_paths = [
+        PathBuf::from(&home).join(".cache/dotfiles/wall.dcol"),
+        PathBuf::from(&home).join(".cache/wallbash/wall.dcol"),
+        PathBuf::from(&home).join(".cache/wallbash/compiled/wall.dcol"),
+    ];
+
+    for path in &candidate_paths {
+        if let Ok(content) = fs::read_to_string(path) {
+            let mut pry1 = String::new();
+            let mut a6 = String::new();
+            for line in content.lines() {
+                let line = line.trim();
+                if let Some((k, v)) = line.split_once('=') {
+                    let val = v.trim_matches('"').trim().to_string();
+                    if k == "dcol_pry1" {
+                        pry1 = val;
+                    } else if k == "dcol_1xa6" {
+                        a6 = val;
+                    }
+                }
+            }
+            if !pry1.is_empty() && !a6.is_empty() {
+                return (pry1, a6);
+            }
+        }
+    }
+    ("313B42".to_string(), "7AA4C2".to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_hex() {
+        assert_eq!(parse_hex("#ffffff"), Some((255, 255, 255)));
+        assert_eq!(parse_hex("000000"), Some((0, 0, 0)));
+        assert_eq!(parse_hex("#007aff"), Some((0, 122, 255)));
+        assert_eq!(parse_hex("xyz"), None);
+    }
 }

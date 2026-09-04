@@ -1,5 +1,8 @@
 mod capture;
+mod compositor;
 mod config;
+mod image;
+mod runtime;
 mod theme;
 mod ui;
 
@@ -10,24 +13,18 @@ use gtk4::prelude::*;
 use std::env;
 
 fn toggle_if_running() -> bool {
-    let current_pid = std::process::id();
-    if let Ok(output) = std::process::Command::new("pgrep")
-        .args(["-x", "shotdock"])
-        .output()
+    let pid_file = runtime::get_dock_pid_file();
+    if let Ok(content) = std::fs::read_to_string(&pid_file)
+        && let Ok(pid) = content.trim().parse::<u32>()
     {
-        let pids = String::from_utf8_lossy(&output.stdout);
-        let other_pids: Vec<&str> = pids
-            .lines()
-            .map(str::trim)
-            .filter(|p| !p.is_empty() && *p != current_pid.to_string())
-            .collect();
-        if !other_pids.is_empty() {
-            for pid in other_pids {
-                let _ = std::process::Command::new("kill").arg(pid).status();
-            }
+        let current_pid = std::process::id();
+        if pid != current_pid && runtime::is_process_running_with_comm(pid, "shotdock") {
+            runtime::send_signal(pid, runtime::SIGTERM);
+            runtime::cleanup_dock_pid();
             return true;
         }
     }
+    runtime::cleanup_dock_pid();
     false
 }
 
@@ -94,11 +91,17 @@ fn main() {
         }
     }
 
-    // Otherwise launch the native floating GTK4 LayerShell toolbar
+    // Register active PID in secure runtime directory
+    runtime::write_dock_pid();
+
+    // Launch native floating GTK4 LayerShell toolbar
     let app = Application::builder()
         .application_id("org.yasir.shotdock")
         .build();
 
     app.connect_activate(ui::build_ui);
     app.run_with_args::<&str>(&[]);
+
+    // Clean up pid on normal exit
+    runtime::cleanup_dock_pid();
 }
