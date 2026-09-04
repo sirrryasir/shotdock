@@ -3,7 +3,7 @@ authors = ["Yasir <https://github.com/sirrryasir>"]
 language = "en"
 src = "src"
 title = "shotdock"
-description = "Modern floating screenshot and screen recording toolbar for Wayland"
+description = "Modern floating screenshot and 4K screen recording dock for Wayland compositors (Hyprland, Sway, Niri, Wayfire)"
 
 [output.html]
 git-repository-url = "https://github.com/sirrryasir/shotdock"

@@ -1,10 +1,25 @@
+# Installation
+
+`shotdock` uses native Wayland protocols and GTK4 layer-shell libraries.
+
+---
+
 ## Dependencies
 
-`shotdock` uses native Wayland and GTK4 layer-shell libraries.
+Runtime requirements:
+
+- `gtk4` & `gtk4-layer-shell`
+- `grim` & `slurp`
+- `imagemagick` (ImageMagick 7 for shadow and canvas pipelines)
+- `wl-clipboard`
+- `libnotify` (`notify-send`)
+- `tesseract` (optional, for OCR text extraction)
+- `wf-recorder` (optional, for video screen recording)
+- `satty` or `swappy` (optional, for screenshot annotation)
 
 ### Arch Linux
 
-Install the core dependencies via `pacman`:
+Install the runtime dependencies via `pacman`:
 
 ```sh
 sudo pacman -S gtk4 gtk4-layer-shell grim slurp imagemagick wl-clipboard libnotify tesseract tesseract-data-eng wf-recorder swappy
@@ -12,15 +27,19 @@ sudo pacman -S gtk4 gtk4-layer-shell grim slurp imagemagick wl-clipboard libnoti
 
 ### Fedora
 
+Install packages via `dnf`:
+
 ```sh
 sudo dnf install gtk4-devel gtk4-layer-shell-devel grim slurp ImageMagick wl-clipboard libnotify tesseract wf-recorder swappy
 ```
 
-## Installation
+---
+
+## Installation Methods
 
 ### Arch Linux (AUR)
 
-`shotdock` is available in the Arch User Repository (AUR):
+`shotdock` is available in the Arch User Repository:
 
 ```sh
 # Using yay
@@ -43,7 +62,9 @@ cargo build --release
 sudo install -Dm755 target/release/shotdock /usr/local/bin/shotdock
 ```
 
-Or install directly into Cargo bin:
+### Cargo
+
+Install directly into Cargo binary path:
 
 ```sh
 cargo install --path .

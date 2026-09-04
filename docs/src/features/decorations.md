@@ -1,4 +1,6 @@
-## macOS Window Framing
+# Window Framing & Canvas Themes
+
+## Window Framing
 
 When `window_shadow` and `macos_titlebar` are enabled in Options:
 
