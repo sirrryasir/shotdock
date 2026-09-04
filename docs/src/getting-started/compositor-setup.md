@@ -1,50 +1,103 @@
-# Compositor Setup
+# Compositor Setup & Keybindings
 
-## Hyprland
+`shotdock` is designed to be invoked directly from your compositor keybindings.
 
-Add keybindings and layer-shell blur rules to `~/.config/hypr/hyprland.conf`:
+> [!NOTE]
+> **Keybindings are completely user-defined!**  
+> `shotdock` does not force any specific key combinations on your environment. You are free to choose and map any shortcuts that fit your workflow to the corresponding `shotdock` CLI commands.
+
+---
+
+## Suggested Configurations
+
+Below are recommended examples showing how you can map `shotdock` commands in your compositor. Feel free to modify the key combinations to match your personal preferences.
+
+### Hyprland (`~/.config/hypr/hyprland.conf`)
 
 ```ini
-# Trigger floating dock
+# --- Suggested shotdock Keybindings (Customize to your preference) ---
+
+# Clean raw snip (drag region or click window) -> clipboard & notification
+bind = SUPER, P, exec, shotdock -a
+
+# Frozen screen snip (freezes moving content and video during snip)
+bind = SUPER CTRL, P, exec, shotdock -a --freeze
+
+# Studio presentation capture (applies rounded corners, shadow & canvas)
+bind = SUPER ALT, P, exec, shotdock -w
+
+# Full desktop capture across all monitors
+bind = , Print, exec, shotdock -p
+
+# OCR text extraction to clipboard
+bind = SUPER CTRL, T, exec, shotdock -t
+
+# Toggle 60 FPS screen recording (prompts for display, window, or area)
+bind = SUPER, R, exec, shotdock -r
+
+# Optional: Launch floating visual dock
 bind = SUPER SHIFT, D, exec, shotdock
 
-# Direct shortcuts
-bind = SUPER, P, exec, shotdock -a                  # Area selection or click window
-bind = SUPER CTRL, P, exec, shotdock -a --freeze    # Frozen screen area selection
-bind = SUPER ALT, P, exec, shotdock -f              # Focused monitor
-bind = , Print, exec, shotdock --all                # All connected monitors
-
-# Layer rules for backdrop blur
+# Layer rules for dock backdrop blur
 layerrule = blur, shotdock
 layerrule = ignorezero, shotdock
 ```
 
 ---
 
-## Sway
-
-Add to `~/.config/sway/config`:
+### Sway (`~/.config/sway/config`)
 
 ```ini
-bindsym $mod+Shift+d exec shotdock
+# --- Suggested shotdock Keybindings ---
+
+# Clean raw snip
 bindsym $mod+p exec shotdock -a
+
+# Frozen screen snip
 bindsym $mod+Ctrl+p exec shotdock -a --freeze
-bindsym $mod+Alt+p exec shotdock -f
-bindsym Print exec shotdock --all
+
+# Studio presentation capture
+bindsym $mod+Alt+p exec shotdock -w
+
+# Full desktop capture across all monitors
+bindsym Print exec shotdock -p
+
+# OCR text extraction
+bindsym $mod+Ctrl+t exec shotdock -t
+
+# Screen recording
+bindsym $mod+r exec shotdock -r
+
+# Optional: Floating visual dock
+bindsym $mod+Shift+d exec shotdock
 ```
 
 ---
 
-## Niri
-
-Add to `~/.config/niri/config.kdl`:
+### Niri (`~/.config/niri/config.kdl`)
 
 ```kdl
+// --- Suggested shotdock Keybindings ---
 binds {
-    Mod+Shift+D { spawn "shotdock"; }
+    // Clean raw snip
     Mod+P { spawn "shotdock" "-a"; }
+
+    // Frozen screen snip
     Mod+Ctrl+P { spawn "shotdock" "-a" "--freeze"; }
-    Mod+Alt+P { spawn "shotdock" "-f"; }
-    Print { spawn "shotdock" "--all"; }
+
+    // Studio presentation capture
+    Mod+Alt+P { spawn "shotdock" "-w"; }
+
+    // Full desktop capture across all monitors
+    Print { spawn "shotdock" "-p"; }
+
+    // OCR text extraction
+    Mod+Ctrl+T { spawn "shotdock" "-t"; }
+
+    // Screen recording
+    Mod+R { spawn "shotdock" "-r"; }
+
+    // Optional: Floating visual dock
+    Mod+Shift+D { spawn "shotdock"; }
 }
 ```

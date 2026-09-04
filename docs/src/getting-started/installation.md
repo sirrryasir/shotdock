@@ -1,45 +1,30 @@
 # Installation
 
-`shotdock` uses native Wayland protocols and GTK4 layer-shell libraries.
+`shotdock` is built with native Wayland protocols and GTK4 layer-shell libraries.
 
 ---
 
 ## Dependencies
 
-Runtime requirements:
-
+### Core Requirements
 - `gtk4` & `gtk4-layer-shell`
 - `grim` & `slurp`
 - `imagemagick` (ImageMagick 7 for shadow and canvas pipelines)
 - `wl-clipboard`
 - `libnotify` (`notify-send`)
-- `tesseract` (optional, for OCR text extraction)
-- `wf-recorder` (optional, for video screen recording)
-- `satty` or `swappy` (optional, for screenshot annotation)
 
-### Arch Linux
-
-Install the runtime dependencies via `pacman`:
-
-```sh
-sudo pacman -S gtk4 gtk4-layer-shell grim slurp imagemagick wl-clipboard libnotify tesseract tesseract-data-eng wf-recorder swappy
-```
-
-### Fedora
-
-Install packages via `dnf`:
-
-```sh
-sudo dnf install gtk4-devel gtk4-layer-shell-devel grim slurp ImageMagick wl-clipboard libnotify tesseract wf-recorder swappy
-```
+### Optional Tools
+- `hyprpicker`: Freezes screen animations during area snips (`--freeze` / `-z`)
+- `tesseract` & `tesseract-data-eng`: Optical Character Recognition (`-t`)
+- `wf-recorder`: Video screen recording (`-r`, `--record-area`)
+- `satty` or `swappy`: Interactive annotation editor
+- `rofi`: Interactive recording target selection menu
 
 ---
 
-## Installation Methods
+## Package Manager Installation
 
 ### Arch Linux (AUR)
-
-`shotdock` is available in the Arch User Repository:
 
 ```sh
 # Using yay
@@ -49,11 +34,22 @@ yay -S shotdock
 paru -S shotdock
 ```
 
+Install recommended optional dependencies on Arch:
+```sh
+sudo pacman -S hyprpicker tesseract tesseract-data-eng wf-recorder swappy rofi
+```
+
+### Fedora
+
+```sh
+sudo dnf install gtk4-devel gtk4-layer-shell-devel grim slurp ImageMagick wl-clipboard libnotify tesseract wf-recorder swappy rofi
+```
+
 ---
 
 ## Building from Source
 
-Ensure Rust is installed via `rustup`:
+Ensure Rust stable is installed:
 
 ```sh
 git clone https://github.com/sirrryasir/shotdock.git
@@ -62,9 +58,9 @@ cargo build --release
 sudo install -Dm755 target/release/shotdock /usr/local/bin/shotdock
 ```
 
-### Cargo
+### Cargo Install
 
-Install directly into Cargo binary path:
+Install directly into Cargo's binary directory:
 
 ```sh
 cargo install --path .

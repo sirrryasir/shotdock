@@ -95,8 +95,9 @@ fn capture_all_screens(config: &Config) {
     if config.show_cursor {
         args.push("-c".to_string());
     }
-    // All monitors: clean desktop capture, no fake window titlebar/shadow
-    run_grim_pipeline(&args, config, false, false);
+    let apply_shadow = config.window_shadow;
+    let add_titlebar = config.macos_titlebar;
+    run_grim_pipeline(&args, config, apply_shadow, add_titlebar);
 }
 
 fn capture_fullscreen(config: &Config) {
@@ -110,20 +111,84 @@ fn capture_fullscreen(config: &Config) {
         args.push(name);
     }
 
-    // Focused monitor: clean desktop capture, no fake window titlebar/shadow
-    run_grim_pipeline(&args, config, false, false);
+    let apply_shadow = config.window_shadow;
+    let add_titlebar = config.macos_titlebar;
+    run_grim_pipeline(&args, config, apply_shadow, add_titlebar);
 }
 
 fn capture_active_window(freeze: bool, config: &Config) {
-    let active_geom = compositor::active_window_geometry();
-    if let Some(g) = active_geom {
-        let mut args = vec!["-g".to_string(), g];
+    let _freeze_guard = if freeze || config.freeze {
+        ScreenFreeze::new()
+    } else {
+        None
+    };
+
+    let boxes = compositor::window_boxes();
+    let mut slurp_cmd = Command::new("slurp");
+    slurp_cmd.args([
+        "-d",
+        "-b",
+        "#00000088",
+        "-c",
+        "#7AA4C2",
+        "-s",
+        "#7AA4C222",
+        "-w",
+        "2",
+    ]);
+
+    let slurp_out = if let Some(ref b) = boxes {
+        slurp_cmd
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()
+            .and_then(|mut c| {
+                if let Some(mut stdin) = c.stdin.take() {
+                    let _ = stdin.write_all(b.as_bytes());
+                }
+                c.wait_with_output()
+            })
+            .ok()
+    } else {
+        slurp_cmd.output().ok()
+    };
+
+    drop(_freeze_guard);
+
+    if let Some(output) = slurp_out
+        && output.status.success()
+    {
+        let geom = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        if geom.is_empty() {
+            return;
+        }
+
+        // Guard against accidental tiny clicks (e.g. 1x1 pixel)
+        if let Some((_, size)) = geom.split_once(' ')
+            && let Some((w_s, h_s)) = size.split_once('x')
+            && let (Ok(w), Ok(h)) = (w_s.parse::<u32>(), h_s.parse::<u32>())
+            && (w < 10 || h < 10)
+        {
+            return;
+        }
+
+        let mut args = vec!["-g".to_string(), geom];
         if config.show_cursor {
             args.push("-c".to_string());
         }
-        run_grim_pipeline(&args, config, config.window_shadow, config.macos_titlebar);
-    } else {
-        capture_area(freeze, config);
+
+        // Studio framing: user wants macOS titlebar, shadow, and canvas applied according to config!
+        let add_titlebar = config.macos_titlebar;
+        let apply_shadow = config.window_shadow;
+
+        let mut frame_config = config.clone();
+        if std::env::args().any(|a| a == "-w" || a == "--window")
+            && !std::env::args().any(|a| a == "-e" || a == "--edit")
+        {
+            frame_config.open_in_editor = false;
+        }
+
+        run_grim_pipeline(&args, &frame_config, apply_shadow, add_titlebar);
     }
 }
 
@@ -173,20 +238,23 @@ fn capture_area(freeze: bool, config: &Config) {
         if geom.is_empty() {
             return;
         }
-        let mut args = vec!["-g".to_string(), geom.clone()];
+
+        // Guard against accidental tiny clicks (e.g. 1x1 pixel)
+        if let Some((_, size)) = geom.split_once(' ')
+            && let Some((w_s, h_s)) = size.split_once('x')
+            && let (Ok(w), Ok(h)) = (w_s.parse::<u32>(), h_s.parse::<u32>())
+            && (w < 10 || h < 10)
+        {
+            return;
+        }
+
+        let mut args = vec!["-g".to_string(), geom];
         if config.show_cursor {
             args.push("-c".to_string());
         }
 
-        // Only frame if the user single-clicked a window snap; manual area snips remain clean and instant
-        let is_window = boxes
-            .as_ref()
-            .map(|b| b.lines().any(|l| l.trim() == geom))
-            .unwrap_or(false);
-
-        let apply_shadow = is_window && config.window_shadow;
-        let add_titlebar = is_window && config.macos_titlebar;
-
+        let apply_shadow = config.window_shadow;
+        let add_titlebar = config.macos_titlebar;
         run_grim_pipeline(&args, config, apply_shadow, add_titlebar);
     }
 }
@@ -380,37 +448,164 @@ fn run_grim_pipeline(
         return;
     }
 
-    let _ = Command::new("sh")
+    let _ = Command::new("notify-send")
         .args([
-            "-c",
-            r#"
-if [ -n "$2" ]; then
-    action=$(notify-send -a "shotdock" -i "$1" -h "string:image-path:$1" -A "annotate=Annotate" -A "delete=Delete" "Screenshot Captured" "$3")
-else
-    action=$(notify-send -a "shotdock" -i "$1" -h "string:image-path:$1" -A "annotate=Annotate" "Screenshot Captured" "$3")
-fi
-
-if [ "$action" = "annotate" ]; then
-    target="${2:-$1}"
-    if command -v "$4" >/dev/null 2>&1; then
-        "$4" -f "$target"
-    elif command -v satty >/dev/null 2>&1; then
-        satty -f "$target"
-    elif command -v swappy >/dev/null 2>&1; then
-        swappy -f "$target"
-    fi
-elif [ "$action" = "delete" ] && [ -n "$2" ]; then
-    rm -f -- "$2"
-    notify-send -a "shotdock" -t 2000 "Screenshot Deleted" "File removed."
-fi
-"#,
-            "shotdock-action",
+            "-a",
+            "shotdock",
+            "-i",
             &preview_str,
-            &saved_file_arg,
+            "-h",
+            &format!("string:image-path:{}", preview_str),
+            "-t",
+            "3000",
+            "Screenshot Captured",
             body_text,
-            &editor_bin,
         ])
         .spawn();
+}
+
+enum RecordTarget {
+    Output(String),
+    Geometry(String),
+}
+
+fn select_recording_target(is_area: bool) -> Option<RecordTarget> {
+    if is_area {
+        let mut slurp_cmd = Command::new("slurp");
+        slurp_cmd.args([
+            "-d",
+            "-b",
+            "#00000088",
+            "-c",
+            "#7AA4C2",
+            "-s",
+            "#7AA4C222",
+            "-w",
+            "2",
+        ]);
+        let boxes = compositor::window_boxes();
+        let slurp_out = if let Some(ref b) = boxes {
+            slurp_cmd
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .spawn()
+                .and_then(|mut c| {
+                    if let Some(mut stdin) = c.stdin.take() {
+                        let _ = stdin.write_all(b.as_bytes());
+                    }
+                    c.wait_with_output()
+                })
+                .ok()
+        } else {
+            slurp_cmd.output().ok()
+        };
+
+        let geom = slurp_out.and_then(|o| {
+            if o.status.success() {
+                let s = String::from_utf8_lossy(&o.stdout).trim().to_string();
+                if !s.is_empty() { Some(s) } else { None }
+            } else {
+                None
+            }
+        })?;
+        return Some(RecordTarget::Geometry(geom));
+    }
+
+    // First priority: Standard Hyprland screen cast picker (hyprland-share-picker)
+    if compositor::detect() == compositor::Compositor::Hyprland
+        && Command::new("which")
+            .arg("hyprland-share-picker")
+            .output()
+            .map(|o| o.status.success())
+            .unwrap_or(false)
+        && let Ok(picker_out) = Command::new("hyprland-share-picker").output()
+        && picker_out.status.success()
+    {
+        let out_str = String::from_utf8_lossy(&picker_out.stdout);
+        for line in out_str.lines() {
+            let trimmed = line.trim();
+            if let Some(rest) = trimmed.strip_prefix("[SELECTION]/") {
+                if let Some(screen_name) = rest.strip_prefix("screen:") {
+                    let name = screen_name.trim();
+                    if !name.is_empty() {
+                        return Some(RecordTarget::Output(name.to_string()));
+                    }
+                } else if let Some(addr) = rest.strip_prefix("window:") {
+                    if let Some(geom) = compositor::window_geometry_by_address(addr.trim()) {
+                        return Some(RecordTarget::Geometry(geom));
+                    }
+                } else if let Some(region_str) = rest.strip_prefix("region:") {
+                    let parts: Vec<&str> = region_str.split_whitespace().collect();
+                    if parts.len() >= 5 {
+                        let geom = format!("{},{} {}x{}", parts[1], parts[2], parts[3], parts[4]);
+                        return Some(RecordTarget::Geometry(geom));
+                    }
+                }
+            }
+        }
+        // If user closed or cancelled the picker window, cleanly return None
+        return None;
+    }
+
+    let outputs = compositor::outputs();
+    if outputs.len() <= 1 {
+        return compositor::focused_output()
+            .or_else(|| outputs.first().map(|(n, _)| n.clone()))
+            .map(RecordTarget::Output);
+    }
+
+    let rofi_check = Command::new("which")
+        .arg("rofi")
+        .output()
+        .map(|o| o.status.success())
+        .unwrap_or(false);
+
+    if rofi_check {
+        let mut menu_items = Vec::new();
+        for (name, desc) in &outputs {
+            if desc.is_empty() {
+                menu_items.push(format!("Display: {}", name));
+            } else {
+                menu_items.push(format!("Display: {} ({})", name, desc));
+            }
+        }
+        menu_items.push("Window or Custom Area".to_string());
+
+        let input_text = menu_items.join("\n");
+        let mut rofi_cmd = Command::new("rofi");
+        rofi_cmd.args([
+            "-dmenu",
+            "-p",
+            "Record Target",
+            "-mesg",
+            "Choose display, window, or region to record",
+            "-theme-str",
+            "window {width: 450px;}",
+        ]);
+        rofi_cmd.stdin(Stdio::piped()).stdout(Stdio::piped());
+
+        if let Ok(mut child) = rofi_cmd.spawn() {
+            if let Some(mut stdin) = child.stdin.take() {
+                let _ = stdin.write_all(input_text.as_bytes());
+            }
+            if let Ok(out) = child.wait_with_output()
+                && out.status.success()
+            {
+                let selection = String::from_utf8_lossy(&out.stdout).trim().to_string();
+                if selection == "Window or Custom Area" {
+                    return select_recording_target(true);
+                }
+                for (name, _) in &outputs {
+                    if selection.contains(name) {
+                        return Some(RecordTarget::Output(name.clone()));
+                    }
+                }
+            }
+        }
+        None
+    } else {
+        compositor::focused_output().map(RecordTarget::Output)
+    }
 }
 
 fn toggle_screen_recording(is_area: bool, config: &Config) {
@@ -424,6 +619,13 @@ fn toggle_screen_recording(is_area: bool, config: &Config) {
             && runtime::is_process_running_with_comm(pid, "wf-recorder")
         {
             runtime::send_signal(pid, runtime::SIGINT);
+            // Wait up to 1.5s for wf-recorder to cleanly flush MP4 headers and exit
+            for _ in 0..15 {
+                if !runtime::is_process_running_with_comm(pid, "wf-recorder") {
+                    break;
+                }
+                thread::sleep(Duration::from_millis(100));
+            }
         }
         let _ = fs::remove_file(&pid_file);
 
@@ -431,38 +633,68 @@ fn toggle_screen_recording(is_area: bool, config: &Config) {
         let _ = fs::remove_file(&file_track);
 
         let target_clean = target_file.trim().to_string();
-        let _ = Command::new("sh")
-            .args([
-                "-c",
-                r#"
-if [ -n "$1" ] && [ -f "$1" ]; then
-    action=$(notify-send -a "shotdock" -A "open=Open Video" "Recording Stopped" "Saved to Videos/Recordings")
-    if [ "$action" = "open" ]; then
-        xdg-open -- "$1"
-    fi
-else
-    notify-send -a "shotdock" "Recording Stopped" "Saved to Videos/Recordings"
-fi
-"#,
-                "shotdock-record-action",
-                &target_clean,
-            ])
-            .spawn();
+
+        if !target_clean.is_empty() && std::path::Path::new(&target_clean).exists() {
+            // Copy saved video file path to clipboard
+            if let Ok(mut child) = Command::new("wl-copy").stdin(Stdio::piped()).spawn() {
+                if let Some(mut stdin) = child.stdin.take() {
+                    let _ = stdin.write_all(target_clean.as_bytes());
+                }
+                let _ = child.wait();
+            }
+
+            let fname = std::path::Path::new(&target_clean)
+                .file_name()
+                .and_then(|f| f.to_str())
+                .unwrap_or("recording.mp4");
+
+            let _ = Command::new("notify-send")
+                .args([
+                    "-a",
+                    "shotdock",
+                    "-i",
+                    "video-x-generic",
+                    "-t",
+                    "3000",
+                    "Recording Stopped",
+                    &format!("Saved: {}\n(Path copied to clipboard)", fname),
+                ])
+                .spawn();
+        } else {
+            let _ = Command::new("notify-send")
+                .args([
+                    "-a",
+                    "shotdock",
+                    "-t",
+                    "3000",
+                    "Recording Stopped",
+                    "Saved to Videos/Recordings",
+                ])
+                .spawn();
+        }
         return;
     }
 
     if runtime::is_user_process_running("wf-recorder") {
         runtime::pkill_user_process("wf-recorder", "-INT");
+        thread::sleep(Duration::from_millis(300));
         let _ = Command::new("notify-send")
             .args([
                 "-a",
                 "shotdock",
+                "-t",
+                "3000",
                 "Recording Stopped",
                 "Saved to Videos/Recordings",
             ])
             .spawn();
         return;
     }
+
+    let target = match select_recording_target(is_area) {
+        Some(t) => t,
+        None => return, // User cancelled target selection (e.g. Escape in rofi)
+    };
 
     let check_rec = Command::new("which").arg("wf-recorder").output();
     if check_rec.map(|o| o.status.success()).unwrap_or(false) {
@@ -473,7 +705,9 @@ fi
         let save_file = format!("{}/{}", videos_dir, filename);
 
         let mut cmd = Command::new("wf-recorder");
+        cmd.arg("-y");
         cmd.args(["-f", &save_file]);
+        cmd.stdin(Stdio::null());
 
         if config.studio_quality {
             let fps = config.record_fps.max(30).to_string();
@@ -491,17 +725,12 @@ fi
             ]);
         }
 
-        if is_area {
-            if let Ok(slurp_out) = Command::new("slurp").output() {
-                let geom = String::from_utf8_lossy(&slurp_out.stdout)
-                    .trim()
-                    .to_string();
-                if geom.is_empty() {
-                    return;
-                }
+        match target {
+            RecordTarget::Output(out_name) => {
+                cmd.args(["-o", &out_name]);
+            }
+            RecordTarget::Geometry(geom) => {
                 cmd.args(["-g", &geom]);
-            } else {
-                return;
             }
         }
 
@@ -514,8 +743,10 @@ fi
                 .args([
                     "-a",
                     "shotdock",
+                    "-t",
+                    "3000",
                     "Recording Started",
-                    "Press shotdock Record again to stop.",
+                    "Press SUPER + R to stop recording.",
                 ])
                 .spawn();
         }
@@ -524,6 +755,8 @@ fi
             .args([
                 "-a",
                 "shotdock",
+                "-t",
+                "3000",
                 "Recorder Not Installed",
                 "Install wf-recorder with: sudo pacman -S wf-recorder",
             ])
@@ -598,14 +831,20 @@ pub fn frame_existing_image(
     }
 
     let target_str = target_path.to_string_lossy().to_string();
-    let action_script = format!(
-        r#"action=$(notify-send -a "shotdock" -i "{target}" -h "string:image-path:{target}" -A "open=Open" "Image Framed" "Saved to {target}")
-if [ "$action" = "open" ]; then
-    xdg-open "{target}"
-fi"#,
-        target = target_str
-    );
-    let _ = Command::new("sh").args(["-c", &action_script]).spawn();
+    let _ = Command::new("notify-send")
+        .args([
+            "-a",
+            "shotdock",
+            "-i",
+            &target_str,
+            "-h",
+            &format!("string:image-path:{}", target_str),
+            "-t",
+            "3000",
+            "Image Framed",
+            &format!("Saved to {}", target_str),
+        ])
+        .spawn();
 
     Ok(target_path)
 }

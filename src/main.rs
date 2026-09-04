@@ -45,20 +45,26 @@ fn print_help() {
     println!("  -z, --freeze      Freeze screen during area selection");
     println!("  -e, --edit        Open immediately in annotation editor (swappy/satty)");
     println!("  --no-edit         Do not open in editor");
+    println!("  --no-shadow       Disable drop shadow");
+    println!("  --no-titlebar     Disable macOS mock titlebar");
     println!("  -t, --text        Extract text from selected area (OCR)");
     println!("  -r, --record      Toggle screen recording (60 FPS)");
     println!("  --record-area     Toggle area screen recording");
     println!("  -h, --help        Show this help message");
     println!();
     println!("Frame Subcommand:");
-    println!("  shotdock frame <FILE> [-o OUTPUT] [--theme THEME] [--no-shadow] [--no-titlebar] [-c]");
+    println!(
+        "  shotdock frame <FILE> [-o OUTPUT] [--theme THEME] [--no-shadow] [--no-titlebar] [-c]"
+    );
     println!("  Apply macOS titlebar, Gaussian shadows, and canvas presets to an existing image.");
 }
 
 fn handle_frame_command(args: &[String], config: &Config) {
     if args.len() < 3 {
         eprintln!("Error: 'shotdock frame' requires an image file path.");
-        eprintln!("Usage: shotdock frame <FILE> [-o OUTPUT] [--theme THEME] [--no-shadow] [--no-titlebar] [-c]");
+        eprintln!(
+            "Usage: shotdock frame <FILE> [-o OUTPUT] [--theme THEME] [--no-shadow] [--no-titlebar] [-c]"
+        );
         std::process::exit(1);
     }
 
@@ -83,7 +89,10 @@ fn handle_frame_command(args: &[String], config: &Config) {
                     if let Some(t) = CanvasTheme::from_str_loose(&args[i + 1]) {
                         theme_override = Some(t);
                     } else {
-                        eprintln!("Warning: Unknown canvas theme '{}'. Using default.", args[i + 1]);
+                        eprintln!(
+                            "Warning: Unknown canvas theme '{}'. Using default.",
+                            args[i + 1]
+                        );
                     }
                     i += 1;
                 }
@@ -139,6 +148,13 @@ fn main() {
             config.open_in_editor = false;
         }
 
+        if has_flag("--no-shadow", "--no-shadow") {
+            config.window_shadow = false;
+        }
+        if has_flag("--no-titlebar", "--no-titlebar") {
+            config.macos_titlebar = false;
+        }
+
         if args[1] == "frame" {
             handle_frame_command(&args, &config);
             return;
@@ -150,7 +166,10 @@ fn main() {
         }
 
         if has_flag("-p", "--all") {
-            execute_capture(CaptureMode::AllScreens, freeze, &config);
+            let mut raw_config = config.clone();
+            raw_config.window_shadow = false;
+            raw_config.macos_titlebar = false;
+            execute_capture(CaptureMode::AllScreens, freeze, &raw_config);
             return;
         }
 
@@ -165,7 +184,10 @@ fn main() {
         }
 
         if has_flag("-a", "--area") || (freeze && args.len() == 2) {
-            execute_capture(CaptureMode::Area, freeze, &config);
+            let mut raw_config = config.clone();
+            raw_config.window_shadow = false;
+            raw_config.macos_titlebar = false;
+            execute_capture(CaptureMode::Area, freeze, &raw_config);
             return;
         }
 

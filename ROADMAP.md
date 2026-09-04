@@ -31,6 +31,9 @@ Development milestones for shotdock on modern Wayland compositors (Hyprland, Swa
 - [x] Headless offline image framing CLI (`shotdock frame <file>`) for terminal, scripts, and CI/CD pipelines.
 - [x] Multi-monitor desktop span capture (`shotdock --all` / `-p`).
 - [x] Hybrid window snapping in area selection (pipes compositor window boxes to `slurp`).
+- [x] CLI-first pipeline with comprehensive command flags (`--no-shadow`, `--no-titlebar`, `-e`, `--no-edit`).
+- [x] Interactive screen recording target selector (display, window, or custom area menu).
+- [x] Studio canvas framing support for both window and area captures.
 - [ ] Audio recording toggle in options popover: system audio and microphone via PipeWire (`wf-recorder -a`).
 - [ ] Aspect ratio canvas presets: padded framing for 16:9, 9:16 (Shorts/Reels), 1:1, and 4:3.
 - [ ] Cursor highlight and click indicator overlay during recording.

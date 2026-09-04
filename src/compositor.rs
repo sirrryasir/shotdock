@@ -100,6 +100,78 @@ pub fn focused_output() -> Option<String> {
     }
 }
 
+pub fn outputs() -> Vec<(String, String)> {
+    match detect() {
+        Compositor::Hyprland => {
+            let mut list = Vec::new();
+            if let Ok(out) = Command::new("hyprctl").args(["monitors", "-j"]).output()
+                && let Ok(monitors) = serde_json::from_slice::<serde_json::Value>(&out.stdout)
+                && let Some(arr) = monitors.as_array()
+            {
+                for m in arr {
+                    if let Some(name) = m.get("name").and_then(|n| n.as_str()) {
+                        let desc = m.get("description").and_then(|d| d.as_str()).unwrap_or("");
+                        list.push((name.to_string(), desc.to_string()));
+                    }
+                }
+            }
+            list
+        }
+        Compositor::Sway => {
+            let mut list = Vec::new();
+            if let Ok(out) = Command::new("swaymsg").args(["-t", "get_outputs"]).output()
+                && let Ok(outputs) = serde_json::from_slice::<serde_json::Value>(&out.stdout)
+                && let Some(arr) = outputs.as_array()
+            {
+                for o in arr {
+                    if let Some(name) = o.get("name").and_then(|n| n.as_str()) {
+                        let desc = o.get("model").and_then(|d| d.as_str()).unwrap_or("");
+                        list.push((name.to_string(), desc.to_string()));
+                    }
+                }
+            }
+            list
+        }
+        Compositor::Niri => {
+            let mut list = Vec::new();
+            if let Ok(out) = Command::new("niri")
+                .args(["msg", "--json", "outputs"])
+                .output()
+                && let Ok(val) = serde_json::from_slice::<serde_json::Value>(&out.stdout)
+                && let Some(map) = val.as_object()
+            {
+                for (name, _) in map {
+                    list.push((name.clone(), String::new()));
+                }
+            }
+            list
+        }
+        Compositor::Other => Vec::new(),
+    }
+}
+
+pub fn window_geometry_by_address(addr: &str) -> Option<String> {
+    let out = Command::new("hyprctl")
+        .args(["clients", "-j"])
+        .output()
+        .ok()?;
+    let clients: serde_json::Value = serde_json::from_slice(&out.stdout).ok()?;
+    let arr = clients.as_array()?;
+    for c in arr {
+        if c.get("address").and_then(|a| a.as_str()) == Some(addr) {
+            let at = c.get("at").and_then(|v| v.as_array())?;
+            let size = c.get("size").and_then(|v| v.as_array())?;
+            let x = at.first()?.as_i64()?;
+            let y = at.get(1)?.as_i64()?;
+            let w = size.first()?.as_i64()?;
+            let h = size.get(1)?.as_i64()?;
+            return Some(format!("{},{} {}x{}", x, y, w, h));
+        }
+    }
+    None
+}
+
+#[allow(dead_code)]
 pub fn active_window_geometry() -> Option<String> {
     match detect() {
         Compositor::Hyprland => {
@@ -222,6 +294,7 @@ pub fn window_boxes() -> Option<String> {
     }
 }
 
+#[allow(dead_code)]
 fn find_sway_focused_rect(node: &serde_json::Value) -> Option<String> {
     if node.get("focused").and_then(|f| f.as_bool()) == Some(true) {
         let rect = node.get("rect")?;
