@@ -6,11 +6,12 @@ mod runtime;
 mod theme;
 mod ui;
 
-use capture::{CaptureMode, execute_capture};
-use config::Config;
+use capture::{CaptureMode, execute_capture, frame_existing_image};
+use config::{CanvasTheme, Config};
 use gtk4::Application;
 use gtk4::prelude::*;
 use std::env;
+use std::path::Path;
 
 fn toggle_if_running() -> bool {
     let pid_file = runtime::get_dock_pid_file();
@@ -28,6 +29,90 @@ fn toggle_if_running() -> bool {
     false
 }
 
+fn print_help() {
+    println!("shotdock - Automated window framing & studio screen capture for Wayland");
+    println!();
+    println!("Usage:");
+    println!("  shotdock [OPTIONS]");
+    println!("  shotdock frame <FILE> [OPTIONS]");
+    println!();
+    println!("Capture Options:");
+    println!("  (none)            Launch floating macOS toolbar (toggles if running)");
+    println!("  -a, --area        Capture selected area or click window");
+    println!("  -w, --window      Capture active window");
+    println!("  -f, --full        Capture focused monitor");
+    println!("  -p, --all         Capture all connected monitors");
+    println!("  -z, --freeze      Freeze screen during area selection");
+    println!("  -t, --text        Extract text from selected area (OCR)");
+    println!("  -r, --record      Toggle screen recording (60 FPS)");
+    println!("  --record-area     Toggle area screen recording");
+    println!("  -h, --help        Show this help message");
+    println!();
+    println!("Frame Subcommand:");
+    println!("  shotdock frame <FILE> [-o OUTPUT] [--theme THEME] [--no-shadow] [--no-titlebar] [-c]");
+    println!("  Apply macOS titlebar, Gaussian shadows, and canvas presets to an existing image.");
+}
+
+fn handle_frame_command(args: &[String], config: &Config) {
+    if args.len() < 3 {
+        eprintln!("Error: 'shotdock frame' requires an image file path.");
+        eprintln!("Usage: shotdock frame <FILE> [-o OUTPUT] [--theme THEME] [--no-shadow] [--no-titlebar] [-c]");
+        std::process::exit(1);
+    }
+
+    let input_file = &args[2];
+    let mut output_file: Option<&Path> = None;
+    let mut theme_override: Option<CanvasTheme> = None;
+    let mut shadow = config.window_shadow;
+    let mut titlebar = config.macos_titlebar;
+    let mut copy_clipboard = config.copy_to_clipboard;
+
+    let mut i = 3;
+    while i < args.len() {
+        match args[i].as_str() {
+            "-o" | "--output" => {
+                if i + 1 < args.len() {
+                    output_file = Some(Path::new(&args[i + 1]));
+                    i += 1;
+                }
+            }
+            "--theme" => {
+                if i + 1 < args.len() {
+                    if let Some(t) = CanvasTheme::from_str_loose(&args[i + 1]) {
+                        theme_override = Some(t);
+                    } else {
+                        eprintln!("Warning: Unknown canvas theme '{}'. Using default.", args[i + 1]);
+                    }
+                    i += 1;
+                }
+            }
+            "--no-shadow" => shadow = false,
+            "--no-titlebar" => titlebar = false,
+            "-c" | "--clipboard" => copy_clipboard = true,
+            _ => {}
+        }
+        i += 1;
+    }
+
+    match frame_existing_image(
+        Path::new(input_file),
+        output_file,
+        theme_override,
+        shadow,
+        titlebar,
+        copy_clipboard,
+        config,
+    ) {
+        Ok(path) => {
+            println!("Framed image saved to: {}", path.display());
+        }
+        Err(e) => {
+            eprintln!("Framing failed: {}", e);
+            std::process::exit(1);
+        }
+    }
+}
+
 fn main() {
     if env::var("GSK_RENDERER").is_err() {
         unsafe {
@@ -42,52 +127,53 @@ fn main() {
         return;
     }
 
-    // Direct CLI flags for instant shortcuts
     if args.len() > 1 {
-        match args[1].as_str() {
-            "--full" | "-f" => {
-                execute_capture(CaptureMode::FullScreen, &config);
-                return;
-            }
-            "--area" | "-a" => {
-                execute_capture(CaptureMode::Area, &config);
-                return;
-            }
-            "--window" | "-w" => {
-                execute_capture(CaptureMode::ActiveWindow, &config);
-                return;
-            }
-            "--record" | "-r" => {
-                execute_capture(CaptureMode::RecordScreen, &config);
-                return;
-            }
-            "--record-area" => {
-                execute_capture(CaptureMode::RecordArea, &config);
-                return;
-            }
-            "--text" | "-t" => {
-                execute_capture(CaptureMode::TextOcr, &config);
-                return;
-            }
-            "--help" | "-h" => {
-                println!(
-                    "shotdock - macOS-style floating screenshot & recording toolbar for Wayland"
-                );
-                println!();
-                println!("Usage: shotdock [OPTIONS]");
-                println!();
-                println!("Options:");
-                println!("  (none)            Launch floating macOS toolbar");
-                println!("  -f, --full        Instantly capture full screen");
-                println!("  -a, --area        Instantly capture selected area");
-                println!("  -w, --window      Instantly capture active window");
-                println!("  -t, --text        Extract text from selected area (OCR)");
-                println!("  -r, --record      Toggle screen recording");
-                println!("  --record-area     Toggle area screen recording");
-                println!("  -h, --help        Show this help message");
-                return;
-            }
-            _ => {}
+        let has_flag = |short: &str, long: &str| args.iter().any(|a| a == short || a == long);
+        let freeze = has_flag("-z", "--freeze");
+
+        if args[1] == "frame" {
+            handle_frame_command(&args, &config);
+            return;
+        }
+
+        if has_flag("-h", "--help") {
+            print_help();
+            return;
+        }
+
+        if has_flag("-p", "--all") {
+            execute_capture(CaptureMode::AllScreens, freeze, &config);
+            return;
+        }
+
+        if has_flag("-f", "--full") {
+            execute_capture(CaptureMode::FullScreen, freeze, &config);
+            return;
+        }
+
+        if has_flag("-w", "--window") {
+            execute_capture(CaptureMode::ActiveWindow, freeze, &config);
+            return;
+        }
+
+        if has_flag("-a", "--area") || (freeze && args.len() == 2) {
+            execute_capture(CaptureMode::Area, freeze, &config);
+            return;
+        }
+
+        if has_flag("-t", "--text") {
+            execute_capture(CaptureMode::TextOcr, freeze, &config);
+            return;
+        }
+
+        if has_flag("-r", "--record") {
+            execute_capture(CaptureMode::RecordScreen, freeze, &config);
+            return;
+        }
+
+        if args.iter().any(|a| a == "--record-area") {
+            execute_capture(CaptureMode::RecordArea, freeze, &config);
+            return;
         }
     }
 

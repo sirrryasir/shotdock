@@ -234,6 +234,17 @@ pub fn build_ui(app: &Application) {
     }
     pop_content.append(&chk_titlebar);
 
+    let chk_freeze = CheckButton::with_label("Freeze Screen during Snip");
+    chk_freeze.set_active(config.borrow().freeze);
+    {
+        let config = config.clone();
+        chk_freeze.connect_toggled(move |btn| {
+            config.borrow_mut().freeze = btn.is_active();
+            config.borrow().save();
+        });
+    }
+    pop_content.append(&chk_freeze);
+
     let lbl_canvas = Label::builder()
         .label("CANVAS BACKGROUND")
         .xalign(0.0)
@@ -382,7 +393,7 @@ pub fn build_ui(app: &Application) {
             window.set_visible(false);
             runtime::cleanup_dock_pid();
             gtk4::glib::timeout_add_local_once(std::time::Duration::from_millis(150), move || {
-                execute_capture(mode, &conf);
+                execute_capture(mode, conf.freeze, &conf);
                 std::process::exit(0);
             });
         })

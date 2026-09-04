@@ -22,6 +22,25 @@ pub enum CanvasTheme {
     Forest,
 }
 
+impl CanvasTheme {
+    pub fn from_str_loose(s: &str) -> Option<Self> {
+        match s.to_lowercase().replace(['-', '_', ' '], "").as_str() {
+            "transparent" => Some(CanvasTheme::Transparent),
+            "followsystem" | "wallbash" | "system" => Some(CanvasTheme::FollowSystem),
+            "realwallpaper" | "wallpaper" => Some(CanvasTheme::RealWallpaper),
+            "white" => Some(CanvasTheme::White),
+            "black" => Some(CanvasTheme::Black),
+            "sunset" => Some(CanvasTheme::Sunset),
+            "candy" => Some(CanvasTheme::Candy),
+            "breeze" => Some(CanvasTheme::Breeze),
+            "raindrop" => Some(CanvasTheme::Raindrop),
+            "midnight" => Some(CanvasTheme::Midnight),
+            "forest" => Some(CanvasTheme::Forest),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     pub show_cursor: bool,
@@ -44,6 +63,8 @@ pub struct Config {
     pub studio_quality: bool,
     #[serde(default = "default_fps")]
     pub record_fps: u32,
+    #[serde(default)]
+    pub freeze: bool,
 }
 
 fn default_fps() -> u32 {
@@ -70,6 +91,7 @@ impl Default for Config {
             ocr_lang: None,
             studio_quality: true,
             record_fps: 60,
+            freeze: false,
         }
     }
 }

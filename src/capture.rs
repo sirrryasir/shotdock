@@ -12,6 +12,7 @@ use std::time::Duration;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CaptureMode {
+    AllScreens,
     FullScreen,
     ActiveWindow,
     Area,
@@ -20,7 +21,34 @@ pub enum CaptureMode {
     RecordArea,
 }
 
-pub fn execute_capture(mode: CaptureMode, config: &Config) {
+pub struct ScreenFreeze {
+    child: Option<std::process::Child>,
+}
+
+impl ScreenFreeze {
+    pub fn new() -> Option<Self> {
+        let child = Command::new("hyprpicker")
+            .args(["-r", "-z"])
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+            .ok()?;
+        thread::sleep(Duration::from_millis(150));
+        Some(Self { child: Some(child) })
+    }
+}
+
+impl Drop for ScreenFreeze {
+    fn drop(&mut self) {
+        if let Some(mut child) = self.child.take() {
+            let _ = child.kill();
+            let _ = child.wait();
+        }
+    }
+}
+
+pub fn execute_capture(mode: CaptureMode, freeze: bool, config: &Config) {
     if config.timer_seconds > 0 {
         let _ = Command::new("notify-send")
             .args([
@@ -35,9 +63,10 @@ pub fn execute_capture(mode: CaptureMode, config: &Config) {
     }
 
     match mode {
+        CaptureMode::AllScreens => capture_all_screens(config),
         CaptureMode::FullScreen => capture_fullscreen(config),
-        CaptureMode::ActiveWindow => capture_active_window(config),
-        CaptureMode::Area => capture_area(config),
+        CaptureMode::ActiveWindow => capture_active_window(freeze, config),
+        CaptureMode::Area => capture_area(freeze, config),
         CaptureMode::TextOcr => capture_ocr(config),
         CaptureMode::RecordScreen => toggle_screen_recording(false, config),
         CaptureMode::RecordArea => toggle_screen_recording(true, config),
@@ -61,6 +90,16 @@ fn shellexpand(path: &str) -> PathBuf {
     PathBuf::from(path)
 }
 
+fn capture_all_screens(config: &Config) {
+    let mut args = Vec::new();
+    if config.show_cursor {
+        args.push("-c".to_string());
+    }
+    // No -o and no -g => grim captures all connected monitors
+    let apply_decorations = config.window_shadow || config.macos_titlebar;
+    run_grim_pipeline(&args, config, apply_decorations, config.macos_titlebar);
+}
+
 fn capture_fullscreen(config: &Config) {
     let mut args = Vec::new();
     if config.show_cursor {
@@ -76,63 +115,59 @@ fn capture_fullscreen(config: &Config) {
     run_grim_pipeline(&args, config, apply_decorations, config.macos_titlebar);
 }
 
-fn capture_active_window(config: &Config) {
+fn capture_active_window(freeze: bool, config: &Config) {
     let active_geom = compositor::active_window_geometry();
-
-    let geom = if let Some(boxes) = compositor::window_boxes() {
-        let child = Command::new("slurp")
-            .args([
-                "-d",
-                "-b",
-                "#00000088",
-                "-c",
-                "#7AA4C2",
-                "-s",
-                "#7AA4C222",
-                "-w",
-                "2",
-            ])
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .spawn()
-            .ok();
-
-        if let Some(mut c) = child {
-            if let Some(mut stdin) = c.stdin.take() {
-                let _ = stdin.write_all(boxes.as_bytes());
-            }
-            if let Ok(out) = c.wait_with_output()
-                && out.status.success()
-            {
-                let g = String::from_utf8_lossy(&out.stdout).trim().to_string();
-                if g.is_empty() { active_geom } else { Some(g) }
-            } else {
-                active_geom
-            }
-        } else {
-            active_geom
-        }
-    } else {
-        active_geom
-    };
-
-    if let Some(g) = geom {
+    if let Some(g) = active_geom {
         let mut args = vec!["-g".to_string(), g];
         if config.show_cursor {
             args.push("-c".to_string());
         }
         run_grim_pipeline(&args, config, config.window_shadow, config.macos_titlebar);
     } else {
-        capture_area(config);
+        capture_area(freeze, config);
     }
 }
 
-fn capture_area(config: &Config) {
-    let slurp_out = Command::new("slurp")
-        .args(["-d", "-b", "#00000088", "-c", "#00aaff", "-w", "2"])
-        .output();
+fn capture_area(freeze: bool, config: &Config) {
+    let _freeze_guard = if freeze || config.freeze {
+        ScreenFreeze::new()
+    } else {
+        None
+    };
 
-    if let Ok(output) = slurp_out
+    let boxes = compositor::window_boxes();
+    let mut slurp_cmd = Command::new("slurp");
+    slurp_cmd.args([
+        "-d",
+        "-b",
+        "#00000088",
+        "-c",
+        "#7AA4C2",
+        "-s",
+        "#7AA4C222",
+        "-w",
+        "2",
+    ]);
+
+    let slurp_out = if let Some(ref b) = boxes {
+        slurp_cmd
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()
+            .and_then(|mut c| {
+                if let Some(mut stdin) = c.stdin.take() {
+                    let _ = stdin.write_all(b.as_bytes());
+                }
+                c.wait_with_output()
+            })
+            .ok()
+    } else {
+        slurp_cmd.output().ok()
+    };
+
+    drop(_freeze_guard);
+
+    if let Some(output) = slurp_out
         && output.status.success()
     {
         let geom = String::from_utf8_lossy(&output.stdout).trim().to_string();
@@ -482,4 +517,83 @@ fi
             ])
             .spawn();
     }
+}
+
+pub fn frame_existing_image(
+    input_path: &std::path::Path,
+    output_path: Option<&std::path::Path>,
+    theme_override: Option<crate::config::CanvasTheme>,
+    shadow: bool,
+    titlebar: bool,
+    copy_clipboard: bool,
+    config: &Config,
+) -> Result<PathBuf, String> {
+    if !input_path.exists() {
+        return Err(format!("Input file not found: {:?}", input_path));
+    }
+
+    let raw_bytes = fs::read(input_path).map_err(|e| e.to_string())?;
+    let png_bytes = if image::get_png_dimensions(&raw_bytes).is_some() {
+        raw_bytes
+    } else {
+        let mut cmd = Command::new("magick");
+        cmd.args(["-", "png32:-"])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::null());
+        let mut child = cmd.spawn().map_err(|e| e.to_string())?;
+        if let Some(mut stdin) = child.stdin.take() {
+            let _ = stdin.write_all(&raw_bytes);
+        }
+        let out = child.wait_with_output().map_err(|e| e.to_string())?;
+        if !out.status.success() || out.stdout.is_empty() {
+            return Err("Failed to convert image to PNG".to_string());
+        }
+        out.stdout
+    };
+
+    let theme = theme_override.unwrap_or(config.canvas_theme);
+    let framed = if shadow || titlebar || theme != crate::config::CanvasTheme::Transparent {
+        image::apply_macos_decorations(&png_bytes, titlebar, theme)
+    } else {
+        png_bytes
+    };
+
+    let target_path = if let Some(p) = output_path {
+        p.to_path_buf()
+    } else {
+        let stem = input_path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("image");
+        let dir = shellexpand(&config.save_dir);
+        let _ = fs::create_dir_all(&dir);
+        dir.join(format!("{}_framed.png", stem))
+    };
+
+    fs::write(&target_path, &framed).map_err(|e| e.to_string())?;
+
+    if copy_clipboard
+        && let Ok(mut child) = Command::new("wl-copy")
+            .args(["-t", "image/png"])
+            .stdin(Stdio::piped())
+            .spawn()
+    {
+        if let Some(mut stdin) = child.stdin.take() {
+            let _ = stdin.write_all(&framed);
+        }
+        let _ = child.wait();
+    }
+
+    let target_str = target_path.to_string_lossy().to_string();
+    let action_script = format!(
+        r#"action=$(notify-send -a "shotdock" -i "{target}" -h "string:image-path:{target}" -A "open=Open" "Image Framed" "Saved to {target}")
+if [ "$action" = "open" ]; then
+    xdg-open "{target}"
+fi"#,
+        target = target_str
+    );
+    let _ = Command::new("sh").args(["-c", &action_script]).spawn();
+
+    Ok(target_path)
 }

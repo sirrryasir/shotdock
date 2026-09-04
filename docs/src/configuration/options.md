@@ -5,6 +5,7 @@ The configuration file is located at `~/.config/shotdock/config.json`:
 ```json
 {
   "show_cursor": false,
+  "freeze": false,
   "window_shadow": true,
   "macos_titlebar": true,
   "canvas_theme": "Transparent",
@@ -17,6 +18,7 @@ The configuration file is located at `~/.config/shotdock/config.json`:
   "ocr_lang": "eng",
   "studio_quality": true,
   "record_fps": 60
+}
 ```
 
 ![Options Popover](../images/toolbar_options.png)
@@ -26,6 +28,7 @@ The configuration file is located at `~/.config/shotdock/config.json`:
 ## Schema
 
 - `show_cursor` (boolean): Include mouse cursor in screenshots. Default `false`.
+- `freeze` (boolean): Freeze screen animations during snip via `hyprpicker`. Default `false`.
 - `window_shadow` (boolean): Render 16px rounded corners and Gaussian drop shadow. Default `true`.
 - `macos_titlebar` (boolean): Add dark mock titlebar with window controls. Default `true`.
 - `canvas_theme` (string): Background canvas preset. Default `"Transparent"`.

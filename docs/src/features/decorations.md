@@ -30,3 +30,26 @@ Transform any raw snip into a presentation card:
 | `White` / `Black` | Minimalist solid studio backdrops |
 
 ![Canvas Presentation](../images/canvas_presentation.png)
+
+---
+
+## Headless Offline Image Framing
+
+Frame existing image files directly from terminal, scripts, or CI/CD pipelines without launching the GUI:
+
+```bash
+# Basic framing (macOS titlebar + 16px radius + shadow)
+shotdock frame screenshot.png
+
+# Frame with custom output file
+shotdock frame terminal.png -o docs/terminal_framed.png
+
+# Apply gradient canvas background (e.g. sunset, breeze, candy, midnight, forest)
+shotdock frame window.png --theme sunset -o framed_card.png
+
+# Copy framed output directly to Wayland clipboard
+shotdock frame code.png -c
+
+# Strip titlebar or shadow for custom layouts
+shotdock frame app.png --no-titlebar --theme breeze
+```
