@@ -9,7 +9,7 @@
 
         <!-- Custom HTML head -->
 
-        <meta name="description" content="Modern floating screenshot and screen recording toolbar for Wayland">
+        <meta name="description" content="Modern floating screenshot and 4K screen recording dock for Wayland compositors (Hyprland, Sway, Niri, Wayfire)">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-6b7f7604.js";
+            window.path_to_searchindex_js = "searchindex-fdfa1c8d.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-672a2b13.js"></script>
@@ -179,12 +179,25 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="shotdock"><a class="header" href="#shotdock">shotdock</a></h1>
-<p>Modern floating screenshot and screen recording toolbar for Wayland compositors (Hyprland, Sway, Wayfire).</p>
-<p><code>shotdock</code> brings window framing, presentation canvas backgrounds, and native Linux Wayland performance together into an anchored, responsive floating pill toolbar.</p>
+<p>Modern floating screenshot and 4K screen recording dock for Wayland compositors (<strong>Hyprland</strong>, <strong>Sway</strong>, <strong>Niri</strong>, <strong>Wayfire</strong>).</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/demo.gif" alt="shotdock demo"><span class="img-wrapper"><img src="images/demo.gif" alt="shotdock demo"></span></label></p>
+<p><code>shotdock</code> provides an anchored floating pill dock, macOS window framing, soft drop shadows, 60 FPS studio recording, and presentation canvas themes.</p>
+<hr>
+<h2 id="showcase"><a class="header" href="#showcase">Showcase</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th style="text-align: center">Floating Dock</th><th style="text-align: center">Presentation Canvas</th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align: center"><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/toolbar.png" alt="Floating Dock"><span class="img-wrapper"><img src="images/toolbar.png" alt="Floating Dock"></span></label></td><td style="text-align: center"><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/canvas_presentation.png" alt="Canvas Theme"><span class="img-wrapper"><img src="images/canvas_presentation.png" alt="Canvas Theme"></span></label></td></tr>
+</tbody>
+</table>
+</div>
 <hr>
 <h2 id="key-highlights"><a class="header" href="#key-highlights">Key Highlights</a></h2>
 <ul>
-<li><strong>Window Framing</strong>: Automatic 16px anti-aliased rounded corners, omnidirectional Gaussian drop shadows, and dark mock window titlebars with traffic lights (<code>🔴 🟡 🟢</code>).</li>
+<li><strong>Window Framing</strong>: Automatic 16px rounded corners, omnidirectional Gaussian drop shadows, and dark mock window titlebars.</li>
 <li><strong>Presentation Canvas</strong>: Wrap any window or region capture into aesthetic backgrounds:
 <ul>
 <li><code>Transparent</code> (alpha PNG)</li>
@@ -194,9 +207,9 @@
 <li><code>Solid Studio</code> (Minimalist White and Black)</li>
 </ul>
 </li>
-<li><strong>Interactive Floating Dock</strong>: Responsive GTK4 LayerShell dock anchored seamlessly to your screen with backdrop blur.</li>
-<li><strong>Rich Notification Preview Cards</strong>: Instant visual image thumbnail cards in SwayNC with interactive <code>[ Annotate ]</code> and <code>[ Delete ]</code> actions.</li>
-<li><strong>Hardware-Accelerated Screen Recording</strong>: H.264/MP4 recording with isolated PID tracking and one-click playback.</li>
+<li><strong>Interactive Floating Dock</strong>: Responsive GTK4 LayerShell dock anchored to screen with backdrop blur.</li>
+<li><strong>Rich Notification Preview Cards</strong>: Instant visual image thumbnail cards in notification center with <code>[ Annotate ]</code> and <code>[ Delete ]</code> actions.</li>
+<li><strong>Studio Screen Recording</strong>: 60 FPS H.264/MP4 recording (CRF 18) with isolated PID tracking and one-click playback.</li>
 <li><strong>OCR Text Extraction</strong>: Snip any text on screen to extract plain text directly to your Wayland clipboard via Tesseract.</li>
 </ul>
 <hr>
@@ -208,19 +221,33 @@ yay -S shotdock
 shotdock
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="installation-1"><a href="#installation-1" class="header">Installation</a></h1>
+<h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
+<p><code>shotdock</code> uses native Wayland protocols and GTK4 layer-shell libraries.</p>
+<hr>
 <h2 id="dependencies"><a class="header" href="#dependencies">Dependencies</a></h2>
-<p><code>shotdock</code> uses native Wayland and GTK4 layer-shell libraries.</p>
+<p>Runtime requirements:</p>
+<ul>
+<li><code>gtk4</code> &amp; <code>gtk4-layer-shell</code></li>
+<li><code>grim</code> &amp; <code>slurp</code></li>
+<li><code>imagemagick</code> (ImageMagick 7 for shadow and canvas pipelines)</li>
+<li><code>wl-clipboard</code></li>
+<li><code>libnotify</code> (<code>notify-send</code>)</li>
+<li><code>tesseract</code> (optional, for OCR text extraction)</li>
+<li><code>wf-recorder</code> (optional, for video screen recording)</li>
+<li><code>satty</code> or <code>swappy</code> (optional, for screenshot annotation)</li>
+</ul>
 <h3 id="arch-linux"><a class="header" href="#arch-linux">Arch Linux</a></h3>
-<p>Install the core dependencies via <code>pacman</code>:</p>
+<p>Install the runtime dependencies via <code>pacman</code>:</p>
 <pre><code class="language-sh">sudo pacman -S gtk4 gtk4-layer-shell grim slurp imagemagick wl-clipboard libnotify tesseract tesseract-data-eng wf-recorder swappy
 </code></pre>
 <h3 id="fedora"><a class="header" href="#fedora">Fedora</a></h3>
+<p>Install packages via <code>dnf</code>:</p>
 <pre><code class="language-sh">sudo dnf install gtk4-devel gtk4-layer-shell-devel grim slurp ImageMagick wl-clipboard libnotify tesseract wf-recorder swappy
 </code></pre>
-<h2 id="installation"><a class="header" href="#installation">Installation</a></h2>
+<hr>
+<h2 id="installation-methods"><a class="header" href="#installation-methods">Installation Methods</a></h2>
 <h3 id="arch-linux-aur"><a class="header" href="#arch-linux-aur">Arch Linux (AUR)</a></h3>
-<p><code>shotdock</code> is available in the Arch User Repository (AUR):</p>
+<p><code>shotdock</code> is available in the Arch User Repository:</p>
 <pre><code class="language-sh"># Using yay
 yay -S shotdock
 
@@ -235,17 +262,18 @@ cd shotdock
 cargo build --release
 sudo install -Dm755 target/release/shotdock /usr/local/bin/shotdock
 </code></pre>
-<p>Or install directly into Cargo bin:</p>
+<h3 id="cargo"><a class="header" href="#cargo">Cargo</a></h3>
+<p>Install directly into Cargo binary path:</p>
 <pre><code class="language-sh">cargo install --path .
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="compositor-setup"><a href="#compositor-setup" class="header">Compositor Setup</a></h1>
+<h1 id="compositor-setup"><a class="header" href="#compositor-setup">Compositor Setup</a></h1>
 <h2 id="hyprland"><a class="header" href="#hyprland">Hyprland</a></h2>
-<p>Add keybindings and layer-shell blur rules to your Hyprland configuration (<code>~/.config/hypr/hyprland.conf</code> or <code>binds.lua</code>):</p>
+<p>Add keybindings and layer-shell blur rules to <code>~/.config/hypr/hyprland.conf</code>:</p>
 <pre><code class="language-ini"># Trigger floating dock
 bind = SUPER SHIFT, D, exec, shotdock
 
-# Direct scriptable shortcuts
+# Direct shortcuts
 bind = SUPER, P, exec, shotdock -a
 bind = SUPER CTRL, P, exec, shotdock -w
 bind = SUPER ALT, P, exec, shotdock -f
@@ -254,39 +282,57 @@ bind = SUPER ALT, P, exec, shotdock -f
 layerrule = blur, shotdock
 layerrule = ignorezero, shotdock
 </code></pre>
+<hr>
 <h2 id="sway"><a class="header" href="#sway">Sway</a></h2>
 <p>Add to <code>~/.config/sway/config</code>:</p>
 <pre><code class="language-ini">bindsym $mod+Shift+d exec shotdock
+bindsym $mod+p exec shotdock -a
+</code></pre>
+<hr>
+<h2 id="niri"><a class="header" href="#niri">Niri</a></h2>
+<p>Add to <code>~/.config/niri/config.kdl</code>:</p>
+<pre><code class="language-kdl">binds {
+    Mod+Shift+D { spawn "shotdock"; }
+    Mod+P { spawn "shotdock" "-a"; }
+}
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="capture-modes"><a href="#capture-modes" class="header">Capture Modes</a></h1>
-<h2 id="1-fullscreen-"><a class="header" href="#1-fullscreen-">1. Fullscreen (<code>󰹑</code>)</a></h2>
-<p>Captures the active, focused monitor with display resolution fidelity:</p>
+<h1 id="capture-modes"><a class="header" href="#capture-modes">Capture Modes</a></h1>
+<p><code>shotdock</code> provides 4 primary capture modes, accessible from the floating dock or direct CLI flags.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/toolbar.png" alt="Toolbar"><span class="img-wrapper"><img src="images/toolbar.png" alt="Toolbar"></span></label></p>
+<hr>
+<h2 id="1-fullscreen"><a class="header" href="#1-fullscreen">1. Fullscreen</a></h2>
+<p>Captures the currently focused monitor across Hyprland, Sway, and Niri:</p>
 <pre><code class="language-sh">shotdock -f
 </code></pre>
-<h2 id="2-active-window-"><a class="header" href="#2-active-window-">2. Active Window (<code></code>)</a></h2>
-<p>Automatically queries <code>hyprctl activewindow</code> to get the focused window coordinates, trimming extraneous borders or shadow artifacts:</p>
+<hr>
+<h2 id="2-active-window"><a class="header" href="#2-active-window">2. Active Window</a></h2>
+<p>Queries active window coordinates directly from the compositor IPC (<code>hyprctl activewindow</code>, <code>swaymsg -t get_tree</code>, or <code>niri msg --json focused-window</code>):</p>
 <pre><code class="language-sh">shotdock -w
 </code></pre>
-<h2 id="3-area-selection-"><a class="header" href="#3-area-selection-">3. Area Selection (<code>󰒅</code>)</a></h2>
-<p>Allows you to drag-select any rectangular portion of the screen using <code>slurp</code>:</p>
+<hr>
+<h2 id="3-area-selection"><a class="header" href="#3-area-selection">3. Area Selection</a></h2>
+<p>Interactive drag-selection for arbitrary rectangular regions using <code>slurp</code>:</p>
 <pre><code class="language-sh">shotdock -a
 </code></pre>
-<h2 id="4-optical-character-recognition-"><a class="header" href="#4-optical-character-recognition-">4. Optical Character Recognition (<code>󰈙</code>)</a></h2>
-<p>Select any area containing text, error dialogs, or documentation. <code>shotdock</code> runs Tesseract OCR and copies plain text immediately to your Wayland clipboard:</p>
+<hr>
+<h2 id="4-optical-character-recognition-ocr"><a class="header" href="#4-optical-character-recognition-ocr">4. Optical Character Recognition (OCR)</a></h2>
+<p>Selects a screen region, runs Tesseract OCR engine, and copies plain text directly to the Wayland clipboard:</p>
 <pre><code class="language-sh">shotdock -t
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="macos-framing--themes"><a href="#macos-framing--themes" class="header">macOS Framing &amp; Themes</a></h1>
-<h2 id="macos-window-framing"><a class="header" href="#macos-window-framing">macOS Window Framing</a></h2>
+<h1 id="window-framing--canvas-themes"><a class="header" href="#window-framing--canvas-themes">Window Framing &amp; Canvas Themes</a></h1>
+<h2 id="window-framing"><a class="header" href="#window-framing">Window Framing</a></h2>
 <p>When <code>window_shadow</code> and <code>macos_titlebar</code> are enabled in Options:</p>
 <ol>
 <li><strong>Rounded Corners</strong>: Precision 16px anti-aliased mask.</li>
 <li><strong>Omnidirectional Shadow</strong>: Multi-pass Gaussian drop shadow cast evenly on all four sides.</li>
-<li><strong>Traffic Light Titlebar</strong>: Dark mock titlebar with native macOS traffic lights (<code>🔴 🟡 🟢</code>).</li>
+<li><strong>Window Titlebar</strong>: Dark mock titlebar with window controls.</li>
 </ol>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/framed_window.png" alt="Framed Window"><span class="img-wrapper"><img src="images/framed_window.png" alt="Framed Window"></span></label></p>
+<hr>
 <h2 id="canvas-background-themes"><a class="header" href="#canvas-background-themes">Canvas Background Themes</a></h2>
-<p>Transform any raw snip into an aesthetic presentation card:</p>
+<p>Transform any raw snip into a presentation card:</p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -294,8 +340,8 @@ layerrule = ignorezero, shotdock
 </thead>
 <tbody>
 <tr><td><code>Transparent</code></td><td>Clean alpha PNG with soft drop shadow</td></tr>
-<tr><td><code>Follow System (Wallbash)</code></td><td>Auto-generated gradient matching your active Hyprland wallpaper palette</td></tr>
-<tr><td><code>Real Wallpaper (Blurred)</code></td><td>Centers screenshot over your blurred desktop wallpaper</td></tr>
+<tr><td><code>Follow System (Wallbash)</code></td><td>Auto-generated gradient matching active wallpaper palette</td></tr>
+<tr><td><code>Real Wallpaper (Blurred)</code></td><td>Centers screenshot over blurred desktop wallpaper</td></tr>
 <tr><td><code>Sunset</code></td><td>Pink to Purple gradient (<code>#f43f5e</code> to <code>#8b5cf6</code>)</td></tr>
 <tr><td><code>Candy</code></td><td>Vibrant Violet gradient (<code>#ec4899</code> to <code>#a855f7</code>)</td></tr>
 <tr><td><code>Breeze</code></td><td>Cyan to Blue gradient (<code>#06b6d4</code> to <code>#3b82f6</code>)</td></tr>
@@ -306,32 +352,59 @@ layerrule = ignorezero, shotdock
 </tbody>
 </table>
 </div>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/canvas_presentation.png" alt="Canvas Presentation"><span class="img-wrapper"><img src="images/canvas_presentation.png" alt="Canvas Presentation"></span></label></p>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="screen-recording"><a href="#screen-recording" class="header">Screen Recording</a></h1>
-<h2 id="isolated-recording-engine"><a class="header" href="#isolated-recording-engine">Isolated Recording Engine</a></h2>
-<p><code>shotdock</code> integrates with <code>wf-recorder</code> for lightweight MP4/H.264 video captures:</p>
+<h1 id="screen-recording"><a class="header" href="#screen-recording">Screen Recording</a></h1>
+<p><code>shotdock</code> integrates with <code>wf-recorder</code> for hardware-accelerated H.264 video captures.</p>
+<hr>
+<h2 id="studio-quality-profile"><a class="header" href="#studio-quality-profile">Studio Quality Profile</a></h2>
+<p>When <code>studio_quality</code> is enabled in configuration (default):</p>
 <ul>
-<li><strong>PID Tracking</strong>: Ensures recording processes can be started and stopped reliably without interfering with other compositor tasks.</li>
-<li><strong>Region Recording</strong>: Interactively select the screen area you want to capture as video.</li>
-<li><strong>Interactive Open Action</strong>: Click <strong>Open Video</strong> directly from the notification to play back the recording.</li>
+<li>Codec: <code>libx264</code></li>
+<li>Rate control: Constant Rate Factor <code>crf=18</code> (visually lossless)</li>
+<li>Frame rate: 60 FPS (<code>record_fps</code>)</li>
+<li>Pixel format: <code>yuv420p</code></li>
+<li>Encoding preset: <code>veryfast</code></li>
 </ul>
-<pre><code class="language-sh">shotdock -r            # Toggle fullscreen recording
-shotdock --record-area # Toggle area recording
+<hr>
+<h2 id="process-isolation"><a class="header" href="#process-isolation">Process Isolation</a></h2>
+<p>Recording instances are tracked via <code>$XDG_RUNTIME_DIR/shotdock/record.pid</code>. Starting or stopping recordings uses native POSIX <code>SIGINT</code> signaling without global process table collisions.</p>
+<hr>
+<h2 id="cli-shortcuts"><a class="header" href="#cli-shortcuts">CLI Shortcuts</a></h2>
+<pre><code class="language-sh">shotdock -r            # Toggle fullscreen 60 FPS recording
+shotdock --record-area # Toggle selected region recording
 </code></pre>
+<p>Stopping a recording generates a desktop notification with an <code>Open Video</code> action.</p>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="ocr-extraction"><a href="#ocr-extraction" class="header">OCR Extraction</a></h1>
-<h2 id="instant-screen-text-extraction"><a class="header" href="#instant-screen-text-extraction">Instant Screen Text Extraction</a></h2>
+<h1 id="optical-character-recognition-ocr"><a class="header" href="#optical-character-recognition-ocr">Optical Character Recognition (OCR)</a></h1>
+<p>Extract plain text directly from any screen region into your Wayland clipboard.</p>
+<hr>
+<h2 id="usage"><a class="header" href="#usage">Usage</a></h2>
 <ol>
-<li>Trigger OCR mode:
+<li>Trigger OCR mode via the floating dock or CLI:
 <pre><code class="language-sh">shotdock -t
 </code></pre>
 </li>
-<li>Drag over any text, code, or terminal output on screen.</li>
-<li>The extracted text is instantly copied to your Wayland clipboard (<code>wl-copy</code>) and a notification toast displays a preview of the recognized text.</li>
+<li>Drag a rectangular selection over any on-screen text, terminal buffer, error dialog, or image.</li>
+<li>The extracted text is immediately written to your Wayland clipboard (<code>wl-clipboard</code>) and an interactive notification displays a preview of the recognized text.</li>
 </ol>
+<hr>
+<h2 id="configuration"><a class="header" href="#configuration">Configuration</a></h2>
+<p>Configure the language model in <code>~/.config/shotdock/config.json</code>:</p>
+<pre><code class="language-json">{
+  "ocr_lang": "eng"
+}
+</code></pre>
+<p>The language code matches Tesseract dataset codes (e.g., <code>eng</code>, <code>deu</code>, <code>fra</code>, <code>spa</code>, <code>jpn</code>).</p>
+<hr>
+<h2 id="dependencies-1"><a class="header" href="#dependencies-1">Dependencies</a></h2>
+<ul>
+<li><code>tesseract</code>: The OCR engine</li>
+<li><code>tesseract-data-eng</code>: English language trained data (or language pack of your choice)</li>
+<li><code>wl-clipboard</code>: Wayland clipboard tool (<code>wl-copy</code>)</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="config-reference"><a href="#config-reference" class="header">Config Reference</a></h1>
-<h2 id="configuration-file"><a class="header" href="#configuration-file">Configuration File</a></h2>
+<h1 id="configuration-reference"><a class="header" href="#configuration-reference">Configuration Reference</a></h1>
 <p>The configuration file is located at <code>~/.config/shotdock/config.json</code>:</p>
 <pre><code class="language-json">{
   "show_cursor": false,
@@ -342,20 +415,43 @@ shotdock --record-area # Toggle area recording
   "save_to_disk": true,
   "copy_to_clipboard": true,
   "open_in_editor": false,
-  "save_dir": "~/Pictures/Screenshots"
-}
+  "save_dir": "~/Pictures/Screenshots",
+  "editor": null,
+  "ocr_lang": "eng",
+  "studio_quality": true,
+  "record_fps": 60
 </code></pre>
-<h3 id="schema"><a class="header" href="#schema">Schema</a></h3>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/toolbar_options.png" alt="Options Popover"><span class="img-wrapper"><img src="images/toolbar_options.png" alt="Options Popover"></span></label></p>
+<hr>
+<h2 id="schema"><a class="header" href="#schema">Schema</a></h2>
 <ul>
-<li><code>show_cursor</code> (boolean): Include mouse cursor in screenshots.</li>
-<li><code>window_shadow</code> (boolean): Render 16px rounded corners and Gaussian drop shadow.</li>
-<li><code>macos_titlebar</code> (boolean): Add dark mock titlebar with traffic light buttons.</li>
-<li><code>canvas_theme</code> (string): Background canvas preset.</li>
-<li><code>timer_seconds</code> (number): Countdown delay before capture (0, 3, 5, 10).</li>
-<li><code>save_to_disk</code> (boolean): Write screenshot PNG to <code>save_dir</code>.</li>
-<li><code>copy_to_clipboard</code> (boolean): Copy screenshot PNG to Wayland clipboard.</li>
-<li><code>open_in_editor</code> (boolean): Immediately launch <code>swappy</code> after capture.</li>
-<li><code>save_dir</code> (string): Directory for saved screenshots (supports <code>~/</code>).</li>
+<li><code>show_cursor</code> (boolean): Include mouse cursor in screenshots. Default <code>false</code>.</li>
+<li><code>window_shadow</code> (boolean): Render 16px rounded corners and Gaussian drop shadow. Default <code>true</code>.</li>
+<li><code>macos_titlebar</code> (boolean): Add dark mock titlebar with window controls. Default <code>true</code>.</li>
+<li><code>canvas_theme</code> (string): Background canvas preset. Default <code>"Transparent"</code>.</li>
+<li><code>timer_seconds</code> (number): Countdown delay in seconds before capture (0, 3, 5, 10). Default <code>0</code>.</li>
+<li><code>save_to_disk</code> (boolean): Write screenshot PNG to <code>save_dir</code>. Default <code>true</code>.</li>
+<li><code>copy_to_clipboard</code> (boolean): Copy screenshot PNG to Wayland clipboard. Default <code>true</code>.</li>
+<li><code>open_in_editor</code> (boolean): Immediately launch annotation editor after capture. Default <code>false</code>.</li>
+<li><code>save_dir</code> (string): Directory path for saved screenshots (supports <code>~/</code>).</li>
+<li><code>editor</code> (string or null): Custom editor binary (e.g. <code>"satty"</code> or <code>"swappy"</code>). Default auto-detects <code>satty</code> then <code>swappy</code>.</li>
+<li><code>ocr_lang</code> (string): Tesseract OCR language model code. Default <code>"eng"</code>.</li>
+<li><code>studio_quality</code> (boolean): Enable 60 FPS visually lossless H.264 recording profile (CRF 18). Default <code>true</code>.</li>
+<li><code>record_fps</code> (number): Target framerate for video recording. Default <code>60</code>.</li>
+</ul>
+<hr>
+<h2 id="canvas-themes"><a class="header" href="#canvas-themes">Canvas Themes</a></h2>
+<ul>
+<li><code>"Transparent"</code>: Alpha PNG with soft drop shadow.</li>
+<li><code>"FollowSystem"</code>: Dynamic gradient matching desktop wallpaper palette (Wallbash).</li>
+<li><code>"RealWallpaper"</code>: Screenshot centered over blurred desktop wallpaper.</li>
+<li><code>"White"</code> / <code>"Black"</code>: Solid studio backdrops.</li>
+<li><code>"Sunset"</code>: Pink to purple gradient (<code>#f43f5e</code> to <code>#8b5cf6</code>).</li>
+<li><code>"Candy"</code>: Violet gradient (<code>#ec4899</code> to <code>#a855f7</code>).</li>
+<li><code>"Breeze"</code>: Cyan to blue gradient (<code>#06b6d4</code> to <code>#3b82f6</code>).</li>
+<li><code>"Raindrop"</code>: Blue to indigo gradient (<code>#3b82f6</code> to <code>#6366f1</code>).</li>
+<li><code>"Midnight"</code>: Deep dark indigo gradient (<code>#1e1b4b</code> to <code>#0f172a</code>).</li>
+<li><code>"Forest"</code>: Emerald to green gradient (<code>#059669</code> to <code>#10b981</code>).</li>
 </ul>
 
                     </main>

@@ -8,7 +8,7 @@
 
         <!-- Custom HTML head -->
 
-        <meta name="description" content="Modern floating screenshot and screen recording toolbar for Wayland">
+        <meta name="description" content="Modern floating screenshot and 4K screen recording dock for Wayland compositors (Hyprland, Sway, Niri, Wayfire)">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-6b7f7604.js";
+            window.path_to_searchindex_js = "../searchindex-fdfa1c8d.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-672a2b13.js"></script>
@@ -180,20 +180,27 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h2 id="1-fullscreen-"><a class="header" href="#1-fullscreen-">1. Fullscreen (<code>󰹑</code>)</a></h2>
-<p>Captures the active, focused monitor with display resolution fidelity:</p>
+                        <h1 id="capture-modes"><a class="header" href="#capture-modes">Capture Modes</a></h1>
+<p><code>shotdock</code> provides 4 primary capture modes, accessible from the floating dock or direct CLI flags.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="../images/toolbar.png" alt="Toolbar"><span class="img-wrapper"><img src="../images/toolbar.png" alt="Toolbar"></span></label></p>
+<hr>
+<h2 id="1-fullscreen"><a class="header" href="#1-fullscreen">1. Fullscreen</a></h2>
+<p>Captures the currently focused monitor across Hyprland, Sway, and Niri:</p>
 <pre><code class="language-sh">shotdock -f
 </code></pre>
-<h2 id="2-active-window-"><a class="header" href="#2-active-window-">2. Active Window (<code></code>)</a></h2>
-<p>Automatically queries <code>hyprctl activewindow</code> to get the focused window coordinates, trimming extraneous borders or shadow artifacts:</p>
+<hr>
+<h2 id="2-active-window"><a class="header" href="#2-active-window">2. Active Window</a></h2>
+<p>Queries active window coordinates directly from the compositor IPC (<code>hyprctl activewindow</code>, <code>swaymsg -t get_tree</code>, or <code>niri msg --json focused-window</code>):</p>
 <pre><code class="language-sh">shotdock -w
 </code></pre>
-<h2 id="3-area-selection-"><a class="header" href="#3-area-selection-">3. Area Selection (<code>󰒅</code>)</a></h2>
-<p>Allows you to drag-select any rectangular portion of the screen using <code>slurp</code>:</p>
+<hr>
+<h2 id="3-area-selection"><a class="header" href="#3-area-selection">3. Area Selection</a></h2>
+<p>Interactive drag-selection for arbitrary rectangular regions using <code>slurp</code>:</p>
 <pre><code class="language-sh">shotdock -a
 </code></pre>
-<h2 id="4-optical-character-recognition-"><a class="header" href="#4-optical-character-recognition-">4. Optical Character Recognition (<code>󰈙</code>)</a></h2>
-<p>Select any area containing text, error dialogs, or documentation. <code>shotdock</code> runs Tesseract OCR and copies plain text immediately to your Wayland clipboard:</p>
+<hr>
+<h2 id="4-optical-character-recognition-ocr"><a class="header" href="#4-optical-character-recognition-ocr">4. Optical Character Recognition (OCR)</a></h2>
+<p>Selects a screen region, runs Tesseract OCR engine, and copies plain text directly to the Wayland clipboard:</p>
 <pre><code class="language-sh">shotdock -t
 </code></pre>
 

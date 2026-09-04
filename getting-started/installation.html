@@ -8,7 +8,7 @@
 
         <!-- Custom HTML head -->
 
-        <meta name="description" content="Modern floating screenshot and screen recording toolbar for Wayland">
+        <meta name="description" content="Modern floating screenshot and 4K screen recording dock for Wayland compositors (Hyprland, Sway, Niri, Wayfire)">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-6b7f7604.js";
+            window.path_to_searchindex_js = "../searchindex-fdfa1c8d.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-672a2b13.js"></script>
@@ -180,18 +180,33 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h2 id="dependencies"><a class="header" href="#dependencies">Dependencies</a></h2>
-<p><code>shotdock</code> uses native Wayland and GTK4 layer-shell libraries.</p>
+                        <h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
+<p><code>shotdock</code> uses native Wayland protocols and GTK4 layer-shell libraries.</p>
+<hr>
+<h2 id="dependencies"><a class="header" href="#dependencies">Dependencies</a></h2>
+<p>Runtime requirements:</p>
+<ul>
+<li><code>gtk4</code> &amp; <code>gtk4-layer-shell</code></li>
+<li><code>grim</code> &amp; <code>slurp</code></li>
+<li><code>imagemagick</code> (ImageMagick 7 for shadow and canvas pipelines)</li>
+<li><code>wl-clipboard</code></li>
+<li><code>libnotify</code> (<code>notify-send</code>)</li>
+<li><code>tesseract</code> (optional, for OCR text extraction)</li>
+<li><code>wf-recorder</code> (optional, for video screen recording)</li>
+<li><code>satty</code> or <code>swappy</code> (optional, for screenshot annotation)</li>
+</ul>
 <h3 id="arch-linux"><a class="header" href="#arch-linux">Arch Linux</a></h3>
-<p>Install the core dependencies via <code>pacman</code>:</p>
+<p>Install the runtime dependencies via <code>pacman</code>:</p>
 <pre><code class="language-sh">sudo pacman -S gtk4 gtk4-layer-shell grim slurp imagemagick wl-clipboard libnotify tesseract tesseract-data-eng wf-recorder swappy
 </code></pre>
 <h3 id="fedora"><a class="header" href="#fedora">Fedora</a></h3>
+<p>Install packages via <code>dnf</code>:</p>
 <pre><code class="language-sh">sudo dnf install gtk4-devel gtk4-layer-shell-devel grim slurp ImageMagick wl-clipboard libnotify tesseract wf-recorder swappy
 </code></pre>
-<h2 id="installation"><a class="header" href="#installation">Installation</a></h2>
+<hr>
+<h2 id="installation-methods"><a class="header" href="#installation-methods">Installation Methods</a></h2>
 <h3 id="arch-linux-aur"><a class="header" href="#arch-linux-aur">Arch Linux (AUR)</a></h3>
-<p><code>shotdock</code> is available in the Arch User Repository (AUR):</p>
+<p><code>shotdock</code> is available in the Arch User Repository:</p>
 <pre><code class="language-sh"># Using yay
 yay -S shotdock
 
@@ -206,7 +221,8 @@ cd shotdock
 cargo build --release
 sudo install -Dm755 target/release/shotdock /usr/local/bin/shotdock
 </code></pre>
-<p>Or install directly into Cargo bin:</p>
+<h3 id="cargo"><a class="header" href="#cargo">Cargo</a></h3>
+<p>Install directly into Cargo binary path:</p>
 <pre><code class="language-sh">cargo install --path .
 </code></pre>
 

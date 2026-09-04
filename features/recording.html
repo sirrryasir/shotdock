@@ -8,7 +8,7 @@
 
         <!-- Custom HTML head -->
 
-        <meta name="description" content="Modern floating screenshot and screen recording toolbar for Wayland">
+        <meta name="description" content="Modern floating screenshot and 4K screen recording dock for Wayland compositors (Hyprland, Sway, Niri, Wayfire)">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-6b7f7604.js";
+            window.path_to_searchindex_js = "../searchindex-fdfa1c8d.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-672a2b13.js"></script>
@@ -180,16 +180,27 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h2 id="isolated-recording-engine"><a class="header" href="#isolated-recording-engine">Isolated Recording Engine</a></h2>
-<p><code>shotdock</code> integrates with <code>wf-recorder</code> for lightweight MP4/H.264 video captures:</p>
+                        <h1 id="screen-recording"><a class="header" href="#screen-recording">Screen Recording</a></h1>
+<p><code>shotdock</code> integrates with <code>wf-recorder</code> for hardware-accelerated H.264 video captures.</p>
+<hr>
+<h2 id="studio-quality-profile"><a class="header" href="#studio-quality-profile">Studio Quality Profile</a></h2>
+<p>When <code>studio_quality</code> is enabled in configuration (default):</p>
 <ul>
-<li><strong>PID Tracking</strong>: Ensures recording processes can be started and stopped reliably without interfering with other compositor tasks.</li>
-<li><strong>Region Recording</strong>: Interactively select the screen area you want to capture as video.</li>
-<li><strong>Interactive Open Action</strong>: Click <strong>Open Video</strong> directly from the notification to play back the recording.</li>
+<li>Codec: <code>libx264</code></li>
+<li>Rate control: Constant Rate Factor <code>crf=18</code> (visually lossless)</li>
+<li>Frame rate: 60 FPS (<code>record_fps</code>)</li>
+<li>Pixel format: <code>yuv420p</code></li>
+<li>Encoding preset: <code>veryfast</code></li>
 </ul>
-<pre><code class="language-sh">shotdock -r            # Toggle fullscreen recording
-shotdock --record-area # Toggle area recording
+<hr>
+<h2 id="process-isolation"><a class="header" href="#process-isolation">Process Isolation</a></h2>
+<p>Recording instances are tracked via <code>$XDG_RUNTIME_DIR/shotdock/record.pid</code>. Starting or stopping recordings uses native POSIX <code>SIGINT</code> signaling without global process table collisions.</p>
+<hr>
+<h2 id="cli-shortcuts"><a class="header" href="#cli-shortcuts">CLI Shortcuts</a></h2>
+<pre><code class="language-sh">shotdock -r            # Toggle fullscreen 60 FPS recording
+shotdock --record-area # Toggle selected region recording
 </code></pre>
+<p>Stopping a recording generates a desktop notification with an <code>Open Video</code> action.</p>
 
                     </main>
 

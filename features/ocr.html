@@ -8,7 +8,7 @@
 
         <!-- Custom HTML head -->
 
-        <meta name="description" content="Modern floating screenshot and screen recording toolbar for Wayland">
+        <meta name="description" content="Modern floating screenshot and 4K screen recording dock for Wayland compositors (Hyprland, Sway, Niri, Wayfire)">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-6b7f7604.js";
+            window.path_to_searchindex_js = "../searchindex-fdfa1c8d.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-672a2b13.js"></script>
@@ -180,15 +180,33 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h2 id="instant-screen-text-extraction"><a class="header" href="#instant-screen-text-extraction">Instant Screen Text Extraction</a></h2>
+                        <h1 id="optical-character-recognition-ocr"><a class="header" href="#optical-character-recognition-ocr">Optical Character Recognition (OCR)</a></h1>
+<p>Extract plain text directly from any screen region into your Wayland clipboard.</p>
+<hr>
+<h2 id="usage"><a class="header" href="#usage">Usage</a></h2>
 <ol>
-<li>Trigger OCR mode:
+<li>Trigger OCR mode via the floating dock or CLI:
 <pre><code class="language-sh">shotdock -t
 </code></pre>
 </li>
-<li>Drag over any text, code, or terminal output on screen.</li>
-<li>The extracted text is instantly copied to your Wayland clipboard (<code>wl-copy</code>) and a notification toast displays a preview of the recognized text.</li>
+<li>Drag a rectangular selection over any on-screen text, terminal buffer, error dialog, or image.</li>
+<li>The extracted text is immediately written to your Wayland clipboard (<code>wl-clipboard</code>) and an interactive notification displays a preview of the recognized text.</li>
 </ol>
+<hr>
+<h2 id="configuration"><a class="header" href="#configuration">Configuration</a></h2>
+<p>Configure the language model in <code>~/.config/shotdock/config.json</code>:</p>
+<pre><code class="language-json">{
+  "ocr_lang": "eng"
+}
+</code></pre>
+<p>The language code matches Tesseract dataset codes (e.g., <code>eng</code>, <code>deu</code>, <code>fra</code>, <code>spa</code>, <code>jpn</code>).</p>
+<hr>
+<h2 id="dependencies"><a class="header" href="#dependencies">Dependencies</a></h2>
+<ul>
+<li><code>tesseract</code>: The OCR engine</li>
+<li><code>tesseract-data-eng</code>: English language trained data (or language pack of your choice)</li>
+<li><code>wl-clipboard</code>: Wayland clipboard tool (<code>wl-copy</code>)</li>
+</ul>
 
                     </main>
 

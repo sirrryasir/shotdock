@@ -8,7 +8,7 @@
 
         <!-- Custom HTML head -->
 
-        <meta name="description" content="Modern floating screenshot and screen recording toolbar for Wayland">
+        <meta name="description" content="Modern floating screenshot and 4K screen recording dock for Wayland compositors (Hyprland, Sway, Niri, Wayfire)">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-6b7f7604.js";
+            window.path_to_searchindex_js = "../searchindex-fdfa1c8d.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-672a2b13.js"></script>
@@ -180,7 +180,7 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h2 id="configuration-file"><a class="header" href="#configuration-file">Configuration File</a></h2>
+                        <h1 id="configuration-reference"><a class="header" href="#configuration-reference">Configuration Reference</a></h1>
 <p>The configuration file is located at <code>~/.config/shotdock/config.json</code>:</p>
 <pre><code class="language-json">{
   "show_cursor": false,
@@ -191,20 +191,43 @@
   "save_to_disk": true,
   "copy_to_clipboard": true,
   "open_in_editor": false,
-  "save_dir": "~/Pictures/Screenshots"
-}
+  "save_dir": "~/Pictures/Screenshots",
+  "editor": null,
+  "ocr_lang": "eng",
+  "studio_quality": true,
+  "record_fps": 60
 </code></pre>
-<h3 id="schema"><a class="header" href="#schema">Schema</a></h3>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="../images/toolbar_options.png" alt="Options Popover"><span class="img-wrapper"><img src="../images/toolbar_options.png" alt="Options Popover"></span></label></p>
+<hr>
+<h2 id="schema"><a class="header" href="#schema">Schema</a></h2>
 <ul>
-<li><code>show_cursor</code> (boolean): Include mouse cursor in screenshots.</li>
-<li><code>window_shadow</code> (boolean): Render 16px rounded corners and Gaussian drop shadow.</li>
-<li><code>macos_titlebar</code> (boolean): Add dark mock titlebar with traffic light buttons.</li>
-<li><code>canvas_theme</code> (string): Background canvas preset.</li>
-<li><code>timer_seconds</code> (number): Countdown delay before capture (0, 3, 5, 10).</li>
-<li><code>save_to_disk</code> (boolean): Write screenshot PNG to <code>save_dir</code>.</li>
-<li><code>copy_to_clipboard</code> (boolean): Copy screenshot PNG to Wayland clipboard.</li>
-<li><code>open_in_editor</code> (boolean): Immediately launch <code>swappy</code> after capture.</li>
-<li><code>save_dir</code> (string): Directory for saved screenshots (supports <code>~/</code>).</li>
+<li><code>show_cursor</code> (boolean): Include mouse cursor in screenshots. Default <code>false</code>.</li>
+<li><code>window_shadow</code> (boolean): Render 16px rounded corners and Gaussian drop shadow. Default <code>true</code>.</li>
+<li><code>macos_titlebar</code> (boolean): Add dark mock titlebar with window controls. Default <code>true</code>.</li>
+<li><code>canvas_theme</code> (string): Background canvas preset. Default <code>"Transparent"</code>.</li>
+<li><code>timer_seconds</code> (number): Countdown delay in seconds before capture (0, 3, 5, 10). Default <code>0</code>.</li>
+<li><code>save_to_disk</code> (boolean): Write screenshot PNG to <code>save_dir</code>. Default <code>true</code>.</li>
+<li><code>copy_to_clipboard</code> (boolean): Copy screenshot PNG to Wayland clipboard. Default <code>true</code>.</li>
+<li><code>open_in_editor</code> (boolean): Immediately launch annotation editor after capture. Default <code>false</code>.</li>
+<li><code>save_dir</code> (string): Directory path for saved screenshots (supports <code>~/</code>).</li>
+<li><code>editor</code> (string or null): Custom editor binary (e.g. <code>"satty"</code> or <code>"swappy"</code>). Default auto-detects <code>satty</code> then <code>swappy</code>.</li>
+<li><code>ocr_lang</code> (string): Tesseract OCR language model code. Default <code>"eng"</code>.</li>
+<li><code>studio_quality</code> (boolean): Enable 60 FPS visually lossless H.264 recording profile (CRF 18). Default <code>true</code>.</li>
+<li><code>record_fps</code> (number): Target framerate for video recording. Default <code>60</code>.</li>
+</ul>
+<hr>
+<h2 id="canvas-themes"><a class="header" href="#canvas-themes">Canvas Themes</a></h2>
+<ul>
+<li><code>"Transparent"</code>: Alpha PNG with soft drop shadow.</li>
+<li><code>"FollowSystem"</code>: Dynamic gradient matching desktop wallpaper palette (Wallbash).</li>
+<li><code>"RealWallpaper"</code>: Screenshot centered over blurred desktop wallpaper.</li>
+<li><code>"White"</code> / <code>"Black"</code>: Solid studio backdrops.</li>
+<li><code>"Sunset"</code>: Pink to purple gradient (<code>#f43f5e</code> to <code>#8b5cf6</code>).</li>
+<li><code>"Candy"</code>: Violet gradient (<code>#ec4899</code> to <code>#a855f7</code>).</li>
+<li><code>"Breeze"</code>: Cyan to blue gradient (<code>#06b6d4</code> to <code>#3b82f6</code>).</li>
+<li><code>"Raindrop"</code>: Blue to indigo gradient (<code>#3b82f6</code> to <code>#6366f1</code>).</li>
+<li><code>"Midnight"</code>: Deep dark indigo gradient (<code>#1e1b4b</code> to <code>#0f172a</code>).</li>
+<li><code>"Forest"</code>: Emerald to green gradient (<code>#059669</code> to <code>#10b981</code>).</li>
 </ul>
 
                     </main>

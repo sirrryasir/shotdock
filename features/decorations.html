@@ -8,7 +8,7 @@
 
         <!-- Custom HTML head -->
 
-        <meta name="description" content="Modern floating screenshot and screen recording toolbar for Wayland">
+        <meta name="description" content="Modern floating screenshot and 4K screen recording dock for Wayland compositors (Hyprland, Sway, Niri, Wayfire)">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-6b7f7604.js";
+            window.path_to_searchindex_js = "../searchindex-fdfa1c8d.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-672a2b13.js"></script>
@@ -180,15 +180,18 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h2 id="macos-window-framing"><a class="header" href="#macos-window-framing">macOS Window Framing</a></h2>
+                        <h1 id="window-framing--canvas-themes"><a class="header" href="#window-framing--canvas-themes">Window Framing &amp; Canvas Themes</a></h1>
+<h2 id="window-framing"><a class="header" href="#window-framing">Window Framing</a></h2>
 <p>When <code>window_shadow</code> and <code>macos_titlebar</code> are enabled in Options:</p>
 <ol>
 <li><strong>Rounded Corners</strong>: Precision 16px anti-aliased mask.</li>
 <li><strong>Omnidirectional Shadow</strong>: Multi-pass Gaussian drop shadow cast evenly on all four sides.</li>
-<li><strong>Traffic Light Titlebar</strong>: Dark mock titlebar with native macOS traffic lights (<code>🔴 🟡 🟢</code>).</li>
+<li><strong>Window Titlebar</strong>: Dark mock titlebar with window controls.</li>
 </ol>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="../images/framed_window.png" alt="Framed Window"><span class="img-wrapper"><img src="../images/framed_window.png" alt="Framed Window"></span></label></p>
+<hr>
 <h2 id="canvas-background-themes"><a class="header" href="#canvas-background-themes">Canvas Background Themes</a></h2>
-<p>Transform any raw snip into an aesthetic presentation card:</p>
+<p>Transform any raw snip into a presentation card:</p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -196,8 +199,8 @@
 </thead>
 <tbody>
 <tr><td><code>Transparent</code></td><td>Clean alpha PNG with soft drop shadow</td></tr>
-<tr><td><code>Follow System (Wallbash)</code></td><td>Auto-generated gradient matching your active Hyprland wallpaper palette</td></tr>
-<tr><td><code>Real Wallpaper (Blurred)</code></td><td>Centers screenshot over your blurred desktop wallpaper</td></tr>
+<tr><td><code>Follow System (Wallbash)</code></td><td>Auto-generated gradient matching active wallpaper palette</td></tr>
+<tr><td><code>Real Wallpaper (Blurred)</code></td><td>Centers screenshot over blurred desktop wallpaper</td></tr>
 <tr><td><code>Sunset</code></td><td>Pink to Purple gradient (<code>#f43f5e</code> to <code>#8b5cf6</code>)</td></tr>
 <tr><td><code>Candy</code></td><td>Vibrant Violet gradient (<code>#ec4899</code> to <code>#a855f7</code>)</td></tr>
 <tr><td><code>Breeze</code></td><td>Cyan to Blue gradient (<code>#06b6d4</code> to <code>#3b82f6</code>)</td></tr>
@@ -208,6 +211,7 @@
 </tbody>
 </table>
 </div>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="../images/canvas_presentation.png" alt="Canvas Presentation"><span class="img-wrapper"><img src="../images/canvas_presentation.png" alt="Canvas Presentation"></span></label></p>
 
                     </main>
 

@@ -8,7 +8,7 @@
 
         <!-- Custom HTML head -->
 
-        <meta name="description" content="Modern floating screenshot and screen recording toolbar for Wayland">
+        <meta name="description" content="Modern floating screenshot and 4K screen recording dock for Wayland compositors (Hyprland, Sway, Niri, Wayfire)">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-6b7f7604.js";
+            window.path_to_searchindex_js = "searchindex-fdfa1c8d.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-672a2b13.js"></script>
@@ -181,12 +181,25 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="shotdock"><a class="header" href="#shotdock">shotdock</a></h1>
-<p>Modern floating screenshot and screen recording toolbar for Wayland compositors (Hyprland, Sway, Wayfire).</p>
-<p><code>shotdock</code> brings window framing, presentation canvas backgrounds, and native Linux Wayland performance together into an anchored, responsive floating pill toolbar.</p>
+<p>Modern floating screenshot and 4K screen recording dock for Wayland compositors (<strong>Hyprland</strong>, <strong>Sway</strong>, <strong>Niri</strong>, <strong>Wayfire</strong>).</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/demo.gif" alt="shotdock demo"><span class="img-wrapper"><img src="images/demo.gif" alt="shotdock demo"></span></label></p>
+<p><code>shotdock</code> provides an anchored floating pill dock, macOS window framing, soft drop shadows, 60 FPS studio recording, and presentation canvas themes.</p>
+<hr>
+<h2 id="showcase"><a class="header" href="#showcase">Showcase</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th style="text-align: center">Floating Dock</th><th style="text-align: center">Presentation Canvas</th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align: center"><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/toolbar.png" alt="Floating Dock"><span class="img-wrapper"><img src="images/toolbar.png" alt="Floating Dock"></span></label></td><td style="text-align: center"><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/canvas_presentation.png" alt="Canvas Theme"><span class="img-wrapper"><img src="images/canvas_presentation.png" alt="Canvas Theme"></span></label></td></tr>
+</tbody>
+</table>
+</div>
 <hr>
 <h2 id="key-highlights"><a class="header" href="#key-highlights">Key Highlights</a></h2>
 <ul>
-<li><strong>Window Framing</strong>: Automatic 16px anti-aliased rounded corners, omnidirectional Gaussian drop shadows, and dark mock window titlebars with traffic lights (<code>🔴 🟡 🟢</code>).</li>
+<li><strong>Window Framing</strong>: Automatic 16px rounded corners, omnidirectional Gaussian drop shadows, and dark mock window titlebars.</li>
 <li><strong>Presentation Canvas</strong>: Wrap any window or region capture into aesthetic backgrounds:
 <ul>
 <li><code>Transparent</code> (alpha PNG)</li>
@@ -196,9 +209,9 @@
 <li><code>Solid Studio</code> (Minimalist White and Black)</li>
 </ul>
 </li>
-<li><strong>Interactive Floating Dock</strong>: Responsive GTK4 LayerShell dock anchored seamlessly to your screen with backdrop blur.</li>
-<li><strong>Rich Notification Preview Cards</strong>: Instant visual image thumbnail cards in SwayNC with interactive <code>[ Annotate ]</code> and <code>[ Delete ]</code> actions.</li>
-<li><strong>Hardware-Accelerated Screen Recording</strong>: H.264/MP4 recording with isolated PID tracking and one-click playback.</li>
+<li><strong>Interactive Floating Dock</strong>: Responsive GTK4 LayerShell dock anchored to screen with backdrop blur.</li>
+<li><strong>Rich Notification Preview Cards</strong>: Instant visual image thumbnail cards in notification center with <code>[ Annotate ]</code> and <code>[ Delete ]</code> actions.</li>
+<li><strong>Studio Screen Recording</strong>: 60 FPS H.264/MP4 recording (CRF 18) with isolated PID tracking and one-click playback.</li>
 <li><strong>OCR Text Extraction</strong>: Snip any text on screen to extract plain text directly to your Wayland clipboard via Tesseract.</li>
 </ul>
 <hr>

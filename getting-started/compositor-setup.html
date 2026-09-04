@@ -8,7 +8,7 @@
 
         <!-- Custom HTML head -->
 
-        <meta name="description" content="Modern floating screenshot and screen recording toolbar for Wayland">
+        <meta name="description" content="Modern floating screenshot and 4K screen recording dock for Wayland compositors (Hyprland, Sway, Niri, Wayfire)">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-6b7f7604.js";
+            window.path_to_searchindex_js = "../searchindex-fdfa1c8d.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-672a2b13.js"></script>
@@ -180,12 +180,13 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h2 id="hyprland"><a class="header" href="#hyprland">Hyprland</a></h2>
-<p>Add keybindings and layer-shell blur rules to your Hyprland configuration (<code>~/.config/hypr/hyprland.conf</code> or <code>binds.lua</code>):</p>
+                        <h1 id="compositor-setup"><a class="header" href="#compositor-setup">Compositor Setup</a></h1>
+<h2 id="hyprland"><a class="header" href="#hyprland">Hyprland</a></h2>
+<p>Add keybindings and layer-shell blur rules to <code>~/.config/hypr/hyprland.conf</code>:</p>
 <pre><code class="language-ini"># Trigger floating dock
 bind = SUPER SHIFT, D, exec, shotdock
 
-# Direct scriptable shortcuts
+# Direct shortcuts
 bind = SUPER, P, exec, shotdock -a
 bind = SUPER CTRL, P, exec, shotdock -w
 bind = SUPER ALT, P, exec, shotdock -f
@@ -194,9 +195,19 @@ bind = SUPER ALT, P, exec, shotdock -f
 layerrule = blur, shotdock
 layerrule = ignorezero, shotdock
 </code></pre>
+<hr>
 <h2 id="sway"><a class="header" href="#sway">Sway</a></h2>
 <p>Add to <code>~/.config/sway/config</code>:</p>
 <pre><code class="language-ini">bindsym $mod+Shift+d exec shotdock
+bindsym $mod+p exec shotdock -a
+</code></pre>
+<hr>
+<h2 id="niri"><a class="header" href="#niri">Niri</a></h2>
+<p>Add to <code>~/.config/niri/config.kdl</code>:</p>
+<pre><code class="language-kdl">binds {
+    Mod+Shift+D { spawn "shotdock"; }
+    Mod+P { spawn "shotdock" "-a"; }
+}
 </code></pre>
 
                     </main>
