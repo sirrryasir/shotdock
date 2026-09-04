@@ -24,8 +24,13 @@ Development milestones for shotdock on modern Wayland compositors (Hyprland, Swa
 - [x] Isolated runtime security (`$XDG_RUNTIME_DIR/shotdock`, mode 0700).
 - [x] Annotation editor auto-detection (satty, swappy).
 
-## Phase 2: Capture & Recording Enhancements (Active)
+## Phase 2: Capture, Workflow & Framing Enhancements (Active)
 
+- [x] Keybind-first compositor architecture: execute any capture, freeze, or OCR headlessly without launching the GUI dock.
+- [x] Screen freeze during area snip via `hyprpicker -r -z` (zero animation stutter, crash-resilient RAII guard).
+- [x] Headless offline image framing CLI (`shotdock frame <file>`) for terminal, scripts, and CI/CD pipelines.
+- [x] Multi-monitor desktop span capture (`shotdock --all` / `-p`).
+- [x] Hybrid window snapping in area selection (pipes compositor window boxes to `slurp`).
 - [ ] Audio recording toggle in options popover: system audio and microphone via PipeWire (`wf-recorder -a`).
 - [ ] Aspect ratio canvas presets: padded framing for 16:9, 9:16 (Shorts/Reels), 1:1, and 4:3.
 - [ ] Cursor highlight and click indicator overlay during recording.

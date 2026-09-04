@@ -28,17 +28,17 @@ The project is structured into focused modules:
 
 **Arch Linux:**
 ```sh
-sudo pacman -S gtk4 gtk4-layer-shell grim slurp imagemagick wl-clipboard libnotify tesseract wf-recorder swappy satty
+sudo pacman -S gtk4 gtk4-layer-shell grim slurp imagemagick wl-clipboard libnotify tesseract wf-recorder swappy satty hyprpicker
 ```
 
 **Fedora:**
 ```sh
-sudo dnf install gtk4-devel gtk4-layer-shell-devel grim slurp ImageMagick wl-clipboard libnotify tesseract wf-recorder
+sudo dnf install gtk4-devel gtk4-layer-shell-devel grim slurp ImageMagick wl-clipboard libnotify tesseract wf-recorder hyprpicker
 ```
 
 **Ubuntu / Debian (24.04+):**
 ```sh
-sudo apt install libgtk-4-dev libgtk4-layer-shell-dev grim slurp imagemagick wl-clipboard libnotify-bin tesseract-ocr wf-recorder
+sudo apt install libgtk-4-dev libgtk4-layer-shell-dev grim slurp imagemagick wl-clipboard libnotify-bin tesseract-ocr wf-recorder hyprpicker
 ```
 
 ---

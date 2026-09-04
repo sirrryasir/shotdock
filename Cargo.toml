@@ -1,9 +1,9 @@
 [package]
 name = "shotdock"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2024"
 authors = ["Yasir <https://github.com/sirrryasir>"]
-description = "macOS-style floating screenshot and screen recording dock for Wayland compositors"
+description = "Automated window framing, soft drop shadows, and studio screen capture for Wayland"
 readme = "README.md"
 repository = "https://github.com/sirrryasir/shotdock"
 homepage = "https://github.com/sirrryasir/shotdock"
