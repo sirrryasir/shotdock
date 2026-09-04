@@ -95,9 +95,8 @@ fn capture_all_screens(config: &Config) {
     if config.show_cursor {
         args.push("-c".to_string());
     }
-    // No -o and no -g => grim captures all connected monitors
-    let apply_decorations = config.window_shadow || config.macos_titlebar;
-    run_grim_pipeline(&args, config, apply_decorations, config.macos_titlebar);
+    // All monitors: clean desktop capture, no fake window titlebar/shadow
+    run_grim_pipeline(&args, config, false, false);
 }
 
 fn capture_fullscreen(config: &Config) {
@@ -111,8 +110,8 @@ fn capture_fullscreen(config: &Config) {
         args.push(name);
     }
 
-    let apply_decorations = config.window_shadow || config.macos_titlebar;
-    run_grim_pipeline(&args, config, apply_decorations, config.macos_titlebar);
+    // Focused monitor: clean desktop capture, no fake window titlebar/shadow
+    run_grim_pipeline(&args, config, false, false);
 }
 
 fn capture_active_window(freeze: bool, config: &Config) {
@@ -174,11 +173,21 @@ fn capture_area(freeze: bool, config: &Config) {
         if geom.is_empty() {
             return;
         }
-        let mut args = vec!["-g".to_string(), geom];
+        let mut args = vec!["-g".to_string(), geom.clone()];
         if config.show_cursor {
             args.push("-c".to_string());
         }
-        run_grim_pipeline(&args, config, config.window_shadow, config.macos_titlebar);
+
+        // Only frame if the user single-clicked a window snap; manual area snips remain clean and instant
+        let is_window = boxes
+            .as_ref()
+            .map(|b| b.lines().any(|l| l.trim() == geom))
+            .unwrap_or(false);
+
+        let apply_shadow = is_window && config.window_shadow;
+        let add_titlebar = is_window && config.macos_titlebar;
+
+        run_grim_pipeline(&args, config, apply_shadow, add_titlebar);
     }
 }
 
@@ -290,6 +299,7 @@ fn run_grim_pipeline(
     add_titlebar: bool,
 ) {
     let mut cmd = Command::new("grim");
+    cmd.args(["-l", "1"]); // Fast lossless PNG compression (sub-150ms)
     for arg in grim_args {
         cmd.arg(arg);
     }
@@ -363,9 +373,11 @@ fn run_grim_pipeline(
         } else {
             &preview_str
         };
+        // Launch editor immediately in milliseconds
         let _ = Command::new(&editor_bin)
             .args(["-f", editor_target])
             .spawn();
+        return;
     }
 
     let _ = Command::new("sh")

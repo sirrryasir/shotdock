@@ -43,6 +43,8 @@ fn print_help() {
     println!("  -f, --full        Capture focused monitor");
     println!("  -p, --all         Capture all connected monitors");
     println!("  -z, --freeze      Freeze screen during area selection");
+    println!("  -e, --edit        Open immediately in annotation editor (swappy/satty)");
+    println!("  --no-edit         Do not open in editor");
     println!("  -t, --text        Extract text from selected area (OCR)");
     println!("  -r, --record      Toggle screen recording (60 FPS)");
     println!("  --record-area     Toggle area screen recording");
@@ -121,7 +123,7 @@ fn main() {
     }
 
     let args: Vec<String> = env::args().collect();
-    let config = Config::load();
+    let mut config = Config::load();
 
     if args.len() == 1 && toggle_if_running() {
         return;
@@ -130,6 +132,12 @@ fn main() {
     if args.len() > 1 {
         let has_flag = |short: &str, long: &str| args.iter().any(|a| a == short || a == long);
         let freeze = has_flag("-z", "--freeze");
+
+        if has_flag("-e", "--edit") {
+            config.open_in_editor = true;
+        } else if has_flag("--no-edit", "--no-editor") {
+            config.open_in_editor = false;
+        }
 
         if args[1] == "frame" {
             handle_frame_command(&args, &config);

@@ -53,6 +53,7 @@ pub struct Config {
     pub timer_seconds: u32,
     pub save_to_disk: bool,
     pub copy_to_clipboard: bool,
+    #[serde(default = "default_true")]
     pub open_in_editor: bool,
     pub save_dir: String,
     #[serde(default)]
@@ -85,7 +86,7 @@ impl Default for Config {
             timer_seconds: 0,
             save_to_disk: true,
             copy_to_clipboard: true,
-            open_in_editor: false,
+            open_in_editor: true,
             save_dir,
             editor: None,
             ocr_lang: None,
