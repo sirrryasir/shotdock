@@ -219,6 +219,31 @@ binds {
 
 ---
 
+## Roadmap
+
+- [ ] PipeWire audio recording toggle (system audio & microphone)
+- [ ] Aspect ratio canvas presets (16:9, 9:16 Shorts/Reels, 1:1, 4:3)
+- [ ] Direct MP4 to optimized GIF (`gifski`) and WebM export
+- [ ] Native Wayland screencopy protocol client (`zwlr_screencopy_v1`)
+
+---
+
+## Contributing
+
+Contributions, bug reports, and suggestions are welcome!
+
+```sh
+# Verify formatting & clippy checks pass
+cargo check
+cargo clippy -- -D warnings
+cargo fmt --check
+cargo build --release
+```
+
+Feel free to open an issue or submit a pull request.
+
+---
+
 ## License
 
 [MIT](LICENSE)
