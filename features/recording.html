@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-699797b7.js";
+            window.path_to_searchindex_js = "../searchindex-c21c9cd5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-672a2b13.js"></script>
@@ -181,26 +181,40 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="screen-recording"><a class="header" href="#screen-recording">Screen Recording</a></h1>
-<p><code>shotdock</code> integrates with <code>wf-recorder</code> for hardware-accelerated H.264 video captures.</p>
+<p><code>shotdock</code> uses <code>wf-recorder</code> for H.264 video recordings.</p>
 <hr>
-<h2 id="studio-quality-profile"><a class="header" href="#studio-quality-profile">Studio Quality Profile</a></h2>
-<p>When <code>studio_quality</code> is enabled in configuration (default):</p>
+<h2 id="recording-profile"><a class="header" href="#recording-profile">Recording Profile</a></h2>
+<p>Default configuration:</p>
 <ul>
 <li>Codec: <code>libx264</code></li>
-<li>Rate control: Constant Rate Factor <code>crf=18</code> (visually lossless)</li>
+<li>Rate control: Constant Rate Factor <code>crf=18</code></li>
 <li>Frame rate: 60 FPS (<code>record_fps</code>)</li>
 <li>Pixel format: <code>yuv420p</code></li>
-<li>Encoding preset: <code>veryfast</code></li>
+<li>Preset: <code>veryfast</code></li>
 </ul>
 <hr>
-<h2 id="process-isolation"><a class="header" href="#process-isolation">Process Isolation</a></h2>
-<p>Recording instances are tracked via <code>$XDG_RUNTIME_DIR/shotdock/record.pid</code>. Starting or stopping recordings uses native POSIX <code>SIGINT</code> signaling without global process table collisions.</p>
-<hr>
-<h2 id="cli-shortcuts"><a class="header" href="#cli-shortcuts">CLI Shortcuts</a></h2>
-<pre><code class="language-sh">shotdock -r            # Toggle fullscreen 60 FPS recording
-shotdock --record-area # Toggle selected region recording
+<h2 id="interactive-target-selection"><a class="header" href="#interactive-target-selection">Interactive Target Selection</a></h2>
+<p>Trigger screen recording:</p>
+<pre><code class="language-sh">shotdock -r
 </code></pre>
-<p>Stopping a recording generates a desktop notification with an <code>Open Video</code> action.</p>
+<p><code>shotdock</code> opens a selection menu (via <code>rofi</code> if installed):</p>
+<ol>
+<li><strong>Display</strong>: Choose a monitor to record.</li>
+<li><strong>Window or Area</strong>: Click a window or drag a region using <code>slurp</code>.</li>
+</ol>
+<p>To start region recording directly without the menu:</p>
+<pre><code class="language-sh">shotdock --record-area
+</code></pre>
+<hr>
+<h2 id="process-management"><a class="header" href="#process-management">Process Management</a></h2>
+<ul>
+<li><strong>Start</strong>: Run <code>shotdock -r</code>.</li>
+<li><strong>Stop</strong>: Run <code>shotdock -r</code> again.</li>
+<li><strong>Signal</strong>: <code>wf-recorder</code> is sent <code>SIGINT</code> to cleanly finalize the MP4 container.</li>
+<li><strong>Clipboard</strong>: File path to the <code>.mp4</code> is copied to clipboard.</li>
+<li><strong>Default Directory</strong>: <code>~/Videos/Recordings/</code>.</li>
+<li><strong>PID File</strong>: Tracked in <code>$XDG_RUNTIME_DIR/shotdock/record.pid</code>.</li>
+</ul>
 
                     </main>
 

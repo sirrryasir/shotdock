@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-699797b7.js";
+            window.path_to_searchindex_js = "searchindex-c21c9cd5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-672a2b13.js"></script>
@@ -181,50 +181,52 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="shotdock"><a class="header" href="#shotdock">shotdock</a></h1>
-<p>Automated window framing, soft drop shadows, and studio screen capture for Wayland (<strong>Hyprland</strong>, <strong>Sway</strong>, <strong>Niri</strong>, <strong>Wayfire</strong>).</p>
-<p><em>The CleanShot X aesthetic pipeline for Linux Wayland.</em></p>
+<p>Wayland screenshot and screen recording tool with window framing and an optional floating dock.</p>
+<p>Supports Hyprland, Sway, River, Niri, and other Wayland compositors.</p>
 <p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/demo.gif" alt="shotdock demo"><span class="img-wrapper"><img src="images/demo.gif" alt="shotdock demo"></span></label></p>
-<p><code>shotdock</code> transforms raw screenshots into presentation-ready cards with 16px rounded corners, multi-pass Gaussian drop shadows, mock titlebars, and wallpaper gradients. Use it as an anchored floating dock or invoke it completely headlessly from your compositor keybindings.</p>
 <hr>
 <h2 id="showcase"><a class="header" href="#showcase">Showcase</a></h2>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th style="text-align: center">Floating Dock</th><th style="text-align: center">Presentation Canvas</th></tr>
+<tr><th style="text-align: center">Canvas Background</th><th style="text-align: center">Window Framing</th><th style="text-align: center">Floating Dock</th></tr>
 </thead>
 <tbody>
-<tr><td style="text-align: center"><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/toolbar.png" alt="Floating Dock"><span class="img-wrapper"><img src="images/toolbar.png" alt="Floating Dock"></span></label></td><td style="text-align: center"><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/canvas_presentation.png" alt="Canvas Theme"><span class="img-wrapper"><img src="images/canvas_presentation.png" alt="Canvas Theme"></span></label></td></tr>
+<tr><td style="text-align: center"><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/canvas_presentation.png" alt="Canvas Theme"><span class="img-wrapper"><img src="images/canvas_presentation.png" alt="Canvas Theme"></span></label></td><td style="text-align: center"><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/framed_window.png" alt="Framed Window"><span class="img-wrapper"><img src="images/framed_window.png" alt="Framed Window"></span></label></td><td style="text-align: center"><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="images/toolbar.png" alt="Floating Dock"><span class="img-wrapper"><img src="images/toolbar.png" alt="Floating Dock"></span></label></td></tr>
 </tbody>
 </table>
 </div>
 <hr>
-<h2 id="key-highlights"><a class="header" href="#key-highlights">Key Highlights</a></h2>
+<h2 id="features"><a class="header" href="#features">Features</a></h2>
 <ul>
-<li><strong>CleanShot X Aesthetic Pipeline</strong>: Automatic 16px rounded corners, omnidirectional Gaussian drop shadows, and dark mock window titlebars.</li>
-<li><strong>Presentation Canvas Backgrounds</strong>: Wrap any window or region capture into aesthetic backdrops:
-<ul>
-<li><code>Transparent</code> (clean alpha PNG with soft drop shadow)</li>
-<li><code>Follow System (Wallbash)</code> (dynamically matches active wallpaper palette)</li>
-<li><code>Real Wallpaper (Blurred)</code> (centers your capture over your blurred wallpaper)</li>
-<li><code>Gradients</code> (Sunset, Candy, Breeze, Raindrop, Midnight, Forest)</li>
-<li><code>Solid Studio</code> (Minimalist White and Black)</li>
-</ul>
-</li>
-<li><strong>Keybind-First Architecture</strong>: Trigger instant captures, screen freeze, and OCR directly from compositor shortcuts without ever opening a GUI toolbar.</li>
-<li><strong>Offline Headless Framing</strong>: Frame existing image files from terminal or CI/CD via <code>shotdock frame &lt;file&gt;</code>.</li>
-<li><strong>Screen Freeze</strong>: Freeze animations and video playback during area selection via <code>--freeze</code> (<code>hyprpicker</code>).</li>
-<li><strong>Interactive Floating Dock</strong>: Responsive GTK4 LayerShell dock anchored to screen with backdrop blur when a visual UI is desired.</li>
-<li><strong>Rich Notification Preview Cards</strong>: Instant visual image thumbnail cards in notification center with <code>[ Annotate ]</code> and <code>[ Delete ]</code> actions.</li>
-<li><strong>Studio Screen Recording</strong>: 60 FPS H.264/MP4 recording (CRF 18) with isolated PID tracking and one-click playback.</li>
-<li><strong>OCR Text Extraction</strong>: Snip any text on screen to extract plain text directly to your Wayland clipboard via Tesseract.</li>
+<li><strong>Area &amp; Window Snip</strong>: Interactive region selection with window snapping (<code>slurp</code>).</li>
+<li><strong>Window Framing</strong>: Rounded corners, Gaussian drop shadow, macOS-style titlebar, and gradient canvas backdrops.</li>
+<li><strong>Offline Framing</strong>: Frame existing image files via <code>shotdock frame &lt;file&gt;</code>.</li>
+<li><strong>Screen Freeze</strong>: Freeze screen content during area selection (<code>hyprpicker</code>).</li>
+<li><strong>Screen Recording</strong>: 60 FPS H.264 video recording with monitor, window, or region selector (<code>wf-recorder</code>).</li>
+<li><strong>OCR Text Extraction</strong>: Extract text from screen directly to Wayland clipboard (<code>tesseract</code>).</li>
+<li><strong>Optional Floating Dock</strong>: GTK4 LayerShell toolbar for quick visual access.</li>
 </ul>
 <hr>
 <h2 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h2>
-<pre><code class="language-sh"># On Arch Linux (AUR)
-yay -S shotdock
+<h3 id="installation"><a class="header" href="#installation">Installation</a></h3>
+<pre><code class="language-sh">yay -S shotdock
+</code></pre>
+<h3 id="cli-capture"><a class="header" href="#cli-capture">CLI Capture</a></h3>
+<pre><code class="language-sh"># Snip region or click window
+shotdock -a
 
-# Launch the dock
-shotdock
+# Capture window or region with framing
+shotdock -w
+
+# Capture focused monitor
+shotdock -f
+
+# Extract text to clipboard (OCR)
+shotdock -t
+
+# Toggle screen recording
+shotdock -r
 </code></pre>
 
                     </main>

@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-699797b7.js";
+            window.path_to_searchindex_js = "../searchindex-c21c9cd5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-672a2b13.js"></script>
@@ -180,40 +180,45 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="compositor-setup"><a class="header" href="#compositor-setup">Compositor Setup</a></h1>
-<h2 id="hyprland"><a class="header" href="#hyprland">Hyprland</a></h2>
-<p>Add keybindings and layer-shell blur rules to <code>~/.config/hypr/hyprland.conf</code>:</p>
-<pre><code class="language-ini"># Trigger floating dock
+                        <h1 id="compositor-keybindings"><a class="header" href="#compositor-keybindings">Compositor Keybindings</a></h1>
+<p>Example keybindings for Wayland compositors.</p>
+<hr>
+<h2 id="hyprland-hyprlandconf"><a class="header" href="#hyprland-hyprlandconf">Hyprland (<code>hyprland.conf</code>)</a></h2>
+<pre><code class="language-ini"># Screenshots
+bind = SUPER, P, exec, shotdock -a
+bind = SUPER CTRL, P, exec, shotdock -a --freeze
+bind = SUPER ALT, P, exec, shotdock -w
+bind = , Print, exec, shotdock -p
+
+# Utilities
+bind = SUPER CTRL, T, exec, shotdock -t
+bind = SUPER, R, exec, shotdock -r
 bind = SUPER SHIFT, D, exec, shotdock
 
-# Direct shortcuts
-bind = SUPER, P, exec, shotdock -a                  # Area selection or click window
-bind = SUPER CTRL, P, exec, shotdock -a --freeze    # Frozen screen area selection
-bind = SUPER ALT, P, exec, shotdock -f              # Focused monitor
-bind = , Print, exec, shotdock --all                # All connected monitors
-
-# Layer rules for backdrop blur
+# Floating dock blur rules
 layerrule = blur, shotdock
 layerrule = ignorezero, shotdock
 </code></pre>
 <hr>
-<h2 id="sway"><a class="header" href="#sway">Sway</a></h2>
-<p>Add to <code>~/.config/sway/config</code>:</p>
-<pre><code class="language-ini">bindsym $mod+Shift+d exec shotdock
-bindsym $mod+p exec shotdock -a
+<h2 id="sway-config"><a class="header" href="#sway-config">Sway (<code>config</code>)</a></h2>
+<pre><code class="language-ini">bindsym $mod+p exec shotdock -a
 bindsym $mod+Ctrl+p exec shotdock -a --freeze
-bindsym $mod+Alt+p exec shotdock -f
-bindsym Print exec shotdock --all
+bindsym $mod+Alt+p exec shotdock -w
+bindsym Print exec shotdock -p
+bindsym $mod+Ctrl+t exec shotdock -t
+bindsym $mod+r exec shotdock -r
+bindsym $mod+Shift+d exec shotdock
 </code></pre>
 <hr>
-<h2 id="niri"><a class="header" href="#niri">Niri</a></h2>
-<p>Add to <code>~/.config/niri/config.kdl</code>:</p>
+<h2 id="niri-configkdl"><a class="header" href="#niri-configkdl">Niri (<code>config.kdl</code>)</a></h2>
 <pre><code class="language-kdl">binds {
-    Mod+Shift+D { spawn "shotdock"; }
     Mod+P { spawn "shotdock" "-a"; }
     Mod+Ctrl+P { spawn "shotdock" "-a" "--freeze"; }
-    Mod+Alt+P { spawn "shotdock" "-f"; }
-    Print { spawn "shotdock" "--all"; }
+    Mod+Alt+P { spawn "shotdock" "-w"; }
+    Print { spawn "shotdock" "-p"; }
+    Mod+Ctrl+T { spawn "shotdock" "-t"; }
+    Mod+R { spawn "shotdock" "-r"; }
+    Mod+Shift+D { spawn "shotdock"; }
 }
 </code></pre>
 

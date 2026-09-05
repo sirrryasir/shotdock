@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-699797b7.js";
+            window.path_to_searchindex_js = "../searchindex-c21c9cd5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-672a2b13.js"></script>
@@ -181,54 +181,65 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="window-framing--canvas-themes"><a class="header" href="#window-framing--canvas-themes">Window Framing &amp; Canvas Themes</a></h1>
+<p><code>shotdock</code> applies rounded corners, drop shadows, window titlebars, and background canvas gradients.</p>
+<hr>
 <h2 id="window-framing"><a class="header" href="#window-framing">Window Framing</a></h2>
-<p>When <code>window_shadow</code> and <code>macos_titlebar</code> are enabled in Options:</p>
+<p>When framing is applied:</p>
 <ol>
-<li><strong>Rounded Corners</strong>: Precision 16px anti-aliased mask.</li>
-<li><strong>Omnidirectional Shadow</strong>: Multi-pass Gaussian drop shadow cast evenly on all four sides.</li>
-<li><strong>Window Titlebar</strong>: Dark mock titlebar with window controls.</li>
+<li><strong>Rounded Corners</strong>: 16px anti-aliased corner radius.</li>
+<li><strong>Drop Shadow</strong>: Multi-pass Gaussian drop shadow cast evenly on all sides.</li>
+<li><strong>Window Titlebar</strong>: Dark mock titlebar with macOS-style window controls.</li>
 </ol>
 <p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="../images/framed_window.png" alt="Framed Window"><span class="img-wrapper"><img src="../images/framed_window.png" alt="Framed Window"></span></label></p>
+<h3 id="capture-commands"><a class="header" href="#capture-commands">Capture Commands</a></h3>
+<pre><code class="language-sh"># Framed capture (titlebar + shadow + canvas)
+shotdock -w
+
+# Framed capture without shadow
+shotdock -w --no-shadow
+
+# Framed capture without titlebar
+shotdock -w --no-titlebar
+</code></pre>
 <hr>
-<h2 id="canvas-background-themes"><a class="header" href="#canvas-background-themes">Canvas Background Themes</a></h2>
-<p>Transform any raw snip into a presentation card:</p>
+<h2 id="canvas-themes"><a class="header" href="#canvas-themes">Canvas Themes</a></h2>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Theme</th><th>Description</th></tr>
+<tr><th style="text-align: left">Theme</th><th style="text-align: left">Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>Transparent</code></td><td>Clean alpha PNG with soft drop shadow</td></tr>
-<tr><td><code>Follow System (Wallbash)</code></td><td>Auto-generated gradient matching active wallpaper palette</td></tr>
-<tr><td><code>Real Wallpaper (Blurred)</code></td><td>Centers screenshot over blurred desktop wallpaper</td></tr>
-<tr><td><code>Sunset</code></td><td>Pink to Purple gradient (<code>#f43f5e</code> to <code>#8b5cf6</code>)</td></tr>
-<tr><td><code>Candy</code></td><td>Vibrant Violet gradient (<code>#ec4899</code> to <code>#a855f7</code>)</td></tr>
-<tr><td><code>Breeze</code></td><td>Cyan to Blue gradient (<code>#06b6d4</code> to <code>#3b82f6</code>)</td></tr>
-<tr><td><code>Raindrop</code></td><td>Ocean Indigo gradient (<code>#3b82f6</code> to <code>#6366f1</code>)</td></tr>
-<tr><td><code>Midnight</code></td><td>Deep Indigo gradient (<code>#1e1b4b</code> to <code>#0f172a</code>)</td></tr>
-<tr><td><code>Forest</code></td><td>Emerald gradient (<code>#059669</code> to <code>#10b981</code>)</td></tr>
-<tr><td><code>White</code> / <code>Black</code></td><td>Minimalist solid studio backdrops</td></tr>
+<tr><td style="text-align: left"><code>Transparent</code></td><td style="text-align: left">Clean alpha PNG with soft drop shadow</td></tr>
+<tr><td style="text-align: left"><code>FollowSystem</code></td><td style="text-align: left">Gradient matching active wallpaper palette (Wallbash)</td></tr>
+<tr><td style="text-align: left"><code>RealWallpaper</code></td><td style="text-align: left">Centers screenshot over blurred desktop wallpaper</td></tr>
+<tr><td style="text-align: left"><code>Sunset</code></td><td style="text-align: left">Pink to Purple gradient (<code>#f43f5e</code> to <code>#8b5cf6</code>)</td></tr>
+<tr><td style="text-align: left"><code>Candy</code></td><td style="text-align: left">Vibrant Violet gradient (<code>#ec4899</code> to <code>#a855f7</code>)</td></tr>
+<tr><td style="text-align: left"><code>Breeze</code></td><td style="text-align: left">Cyan to Blue gradient (<code>#06b6d4</code> to <code>#3b82f6</code>)</td></tr>
+<tr><td style="text-align: left"><code>Raindrop</code></td><td style="text-align: left">Ocean Indigo gradient (<code>#3b82f6</code> to <code>#6366f1</code>)</td></tr>
+<tr><td style="text-align: left"><code>Midnight</code></td><td style="text-align: left">Deep Indigo gradient (<code>#1e1b4b</code> to <code>#0f172a</code>)</td></tr>
+<tr><td style="text-align: left"><code>Forest</code></td><td style="text-align: left">Emerald gradient (<code>#059669</code> to <code>#10b981</code>)</td></tr>
+<tr><td style="text-align: left"><code>White</code> / <code>Black</code></td><td style="text-align: left">Minimalist solid backdrops</td></tr>
 </tbody>
 </table>
 </div>
 <p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="../images/canvas_presentation.png" alt="Canvas Presentation"><span class="img-wrapper"><img src="../images/canvas_presentation.png" alt="Canvas Presentation"></span></label></p>
 <hr>
-<h2 id="headless-offline-image-framing"><a class="header" href="#headless-offline-image-framing">Headless Offline Image Framing</a></h2>
-<p>Frame existing image files directly from terminal, scripts, or CI/CD pipelines without launching the GUI:</p>
-<pre><code class="language-bash"># Basic framing (macOS titlebar + 16px radius + shadow)
+<h2 id="framing-existing-images-shotdock-frame"><a class="header" href="#framing-existing-images-shotdock-frame">Framing Existing Images (<code>shotdock frame</code>)</a></h2>
+<p>Frame existing images via CLI:</p>
+<pre><code class="language-sh"># Basic framing
 shotdock frame screenshot.png
 
 # Frame with custom output file
 shotdock frame terminal.png -o docs/terminal_framed.png
 
-# Apply gradient canvas background (e.g. sunset, breeze, candy, midnight, forest)
-shotdock frame window.png --theme sunset -o framed_card.png
+# Apply canvas theme
+shotdock frame window.png --theme Sunset -o framed_card.png
 
-# Copy framed output directly to Wayland clipboard
+# Copy framed output directly to clipboard
 shotdock frame code.png -c
 
-# Strip titlebar or shadow for custom layouts
-shotdock frame app.png --no-titlebar --theme breeze
+# Strip titlebar
+shotdock frame app.png --no-titlebar --theme Breeze
 </code></pre>
 
                     </main>

@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "../searchindex-699797b7.js";
+            window.path_to_searchindex_js = "../searchindex-c21c9cd5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-672a2b13.js"></script>
@@ -181,48 +181,50 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
-<p><code>shotdock</code> uses native Wayland protocols and GTK4 layer-shell libraries.</p>
+<p><code>shotdock</code> is built with native Wayland protocols and GTK4 layer-shell libraries.</p>
 <hr>
 <h2 id="dependencies"><a class="header" href="#dependencies">Dependencies</a></h2>
-<p>Runtime requirements:</p>
+<h3 id="core-requirements"><a class="header" href="#core-requirements">Core Requirements</a></h3>
 <ul>
 <li><code>gtk4</code> &amp; <code>gtk4-layer-shell</code></li>
 <li><code>grim</code> &amp; <code>slurp</code></li>
 <li><code>imagemagick</code> (ImageMagick 7 for shadow and canvas pipelines)</li>
 <li><code>wl-clipboard</code></li>
 <li><code>libnotify</code> (<code>notify-send</code>)</li>
-<li><code>tesseract</code> (optional, for OCR text extraction)</li>
-<li><code>wf-recorder</code> (optional, for video screen recording)</li>
-<li><code>satty</code> or <code>swappy</code> (optional, for screenshot annotation)</li>
 </ul>
-<h3 id="arch-linux"><a class="header" href="#arch-linux">Arch Linux</a></h3>
-<p>Install the runtime dependencies via <code>pacman</code>:</p>
-<pre><code class="language-sh">sudo pacman -S gtk4 gtk4-layer-shell grim slurp imagemagick wl-clipboard libnotify tesseract tesseract-data-eng wf-recorder swappy
-</code></pre>
-<h3 id="fedora"><a class="header" href="#fedora">Fedora</a></h3>
-<p>Install packages via <code>dnf</code>:</p>
-<pre><code class="language-sh">sudo dnf install gtk4-devel gtk4-layer-shell-devel grim slurp ImageMagick wl-clipboard libnotify tesseract wf-recorder swappy
-</code></pre>
+<h3 id="optional-tools"><a class="header" href="#optional-tools">Optional Tools</a></h3>
+<ul>
+<li><code>hyprpicker</code>: Freezes screen animations during area snips (<code>--freeze</code> / <code>-z</code>)</li>
+<li><code>tesseract</code> &amp; <code>tesseract-data-eng</code>: Optical Character Recognition (<code>-t</code>)</li>
+<li><code>wf-recorder</code>: Video screen recording (<code>-r</code>, <code>--record-area</code>)</li>
+<li><code>satty</code> or <code>swappy</code>: Interactive annotation editor</li>
+<li><code>rofi</code>: Interactive recording target selection menu</li>
+</ul>
 <hr>
-<h2 id="installation-methods"><a class="header" href="#installation-methods">Installation Methods</a></h2>
+<h2 id="package-manager-installation"><a class="header" href="#package-manager-installation">Package Manager Installation</a></h2>
 <h3 id="arch-linux-aur"><a class="header" href="#arch-linux-aur">Arch Linux (AUR)</a></h3>
-<p><code>shotdock</code> is available in the Arch User Repository:</p>
 <pre><code class="language-sh"># Using yay
 yay -S shotdock
 
 # Using paru
 paru -S shotdock
 </code></pre>
+<p>Install recommended optional dependencies on Arch:</p>
+<pre><code class="language-sh">sudo pacman -S hyprpicker tesseract tesseract-data-eng wf-recorder swappy rofi
+</code></pre>
+<h3 id="fedora"><a class="header" href="#fedora">Fedora</a></h3>
+<pre><code class="language-sh">sudo dnf install gtk4-devel gtk4-layer-shell-devel grim slurp ImageMagick wl-clipboard libnotify tesseract wf-recorder swappy rofi
+</code></pre>
 <hr>
 <h2 id="building-from-source"><a class="header" href="#building-from-source">Building from Source</a></h2>
-<p>Ensure Rust is installed via <code>rustup</code>:</p>
+<p>Ensure Rust stable is installed:</p>
 <pre><code class="language-sh">git clone https://github.com/sirrryasir/shotdock.git
 cd shotdock
 cargo build --release
 sudo install -Dm755 target/release/shotdock /usr/local/bin/shotdock
 </code></pre>
-<h3 id="cargo"><a class="header" href="#cargo">Cargo</a></h3>
-<p>Install directly into Cargo binary path:</p>
+<h3 id="cargo-install"><a class="header" href="#cargo-install">Cargo Install</a></h3>
+<p>Install directly into Cargo’s binary directory:</p>
 <pre><code class="language-sh">cargo install --path .
 </code></pre>
 
