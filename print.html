@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "coal";
             const default_dark_theme = "coal";
-            window.path_to_searchindex_js = "searchindex-c21c9cd5.js";
+            window.path_to_searchindex_js = "searchindex-0c6a66e6.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-672a2b13.js"></script>
@@ -258,6 +258,11 @@ paru -S shotdock
 </code></pre>
 <p>Install recommended optional dependencies on Arch:</p>
 <pre><code class="language-sh">sudo pacman -S hyprpicker tesseract tesseract-data-eng wf-recorder swappy rofi
+</code></pre>
+<h3 id="pre-compiled-binary-generic-linux-x86_64"><a class="header" href="#pre-compiled-binary-generic-linux-x86_64">Pre-compiled Binary (Generic Linux x86_64)</a></h3>
+<p>Download the standalone tarball from <a href="https://github.com/sirrryasir/shotdock/releases/latest">GitHub Releases</a>:</p>
+<pre><code class="language-sh">tar -xzf shotdock-v0.1.4-x86_64-linux.tar.gz
+sudo install -Dm755 shotdock /usr/local/bin/shotdock
 </code></pre>
 <h3 id="fedora"><a class="header" href="#fedora">Fedora</a></h3>
 <pre><code class="language-sh">sudo dnf install gtk4-devel gtk4-layer-shell-devel grim slurp ImageMagick wl-clipboard libnotify tesseract wf-recorder swappy rofi
