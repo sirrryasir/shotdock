@@ -1,51 +1,46 @@
-# Capture Modes & CLI Reference
+# Capture Modes
 
-`shotdock` provides a modular CLI interface for all capture workflows. Commands execute sub-150ms without needing to launch a GUI toolbar.
+`shotdock` provides CLI commands for all capture operations.
 
 ---
 
-## 1. Clean Area Snip (with Window Snapping)
+## 1. Area Snip (with Window Snapping)
 
-Interactive selection via `slurp`. Drag any arbitrary rectangular box, or **single-click on any window** to snap to its exact geometry.
+Interactive selection via `slurp`. Drag a rectangular box or click on any window to select it:
 
 ```sh
 shotdock -a
 ```
 
-- **Output**: Clean, unadorned PNG saved directly to disk and copied to your Wayland clipboard.
-- **Workflow**: Ideal daily driver replacement for `grim+slurp` and `grimblast`.
+Saves the capture to disk and copies it to the Wayland clipboard.
 
 ---
 
-## 2. Frozen Screen Selection
+## 2. Screen Freeze Selection
 
-Freezes display buffers and moving video/animations during area selection via `hyprpicker`:
+Freezes screen content during selection using `hyprpicker`:
 
 ```sh
-# Freeze screen during snip
 shotdock -a --freeze
-
-# Or shorthand
+# or
 shotdock -z
 ```
 
 ---
 
-## 3. Studio Framed Window / Area
+## 3. Window & Region Framing
 
-Captures a window or custom region and formats it into a presentation card with 16px anti-aliased rounded corners, multi-pass Gaussian drop shadows, mock macOS window titlebar, and your chosen canvas theme:
+Captures a window or region and applies 16px rounded corners, Gaussian drop shadow, window titlebar, and canvas background:
 
 ```sh
 shotdock -w
 ```
 
-Click any window or drag any region to capture it with studio styling.
-
 ---
 
 ## 4. Focused Monitor
 
-Captures the entire display of the currently focused monitor:
+Captures the currently focused monitor:
 
 ```sh
 shotdock -f
@@ -55,20 +50,19 @@ shotdock -f
 
 ## 5. All Connected Monitors
 
-Captures the full spanning desktop across all connected monitors (ideal for the `Print` key):
+Captures a full desktop span across all monitors:
 
 ```sh
 shotdock -p
-
-# Or long-form
+# or
 shotdock --all
 ```
 
 ---
 
-## 6. Optical Character Recognition (OCR)
+## 6. OCR Text Extraction
 
-Selects a screen region, runs Tesseract OCR engine, and copies plain text directly to the Wayland clipboard:
+Extracts text from a selected area to the clipboard using Tesseract:
 
 ```sh
 shotdock -t
@@ -78,40 +72,37 @@ shotdock -t
 
 ## Modifier Flags
 
-Combine these flags with any capture mode:
-
 | Flag | Description |
-| :--- | :--- |
-| `-e`, `--edit` | Open the captured image directly in your annotation editor (`satty` or `swappy`) |
-| `--no-edit` | Bypass the editor even if `"open_in_editor": true` in `config.json` |
-| `--no-shadow` | Disable Gaussian drop shadow rendering |
-| `--no-titlebar` | Disable mock macOS window titlebar |
-| `-z`, `--freeze` | Freeze screen during region selection |
+|:---|:---|
+| `-e`, `--edit` | Open capture in editor (`satty` or `swappy`) |
+| `--no-edit` | Bypass editor |
+| `--no-shadow` | Disable drop shadow |
+| `--no-titlebar` | Disable window titlebar |
+| `-z`, `--freeze` | Freeze screen during selection |
 
 ### Examples
 
 ```sh
-# Snip an area and immediately open in annotation editor
+# Snip and open in editor
 shotdock -a -e
 
-# Capture studio window without shadow
+# Framed capture without shadow
 shotdock -w --no-shadow
 
-# Capture studio window without macOS titlebar
+# Framed capture without titlebar
 shotdock -w --no-titlebar
 ```
 
 ---
 
-## Optional: Interactive Floating Dock
+## Floating Dock
 
-Whenever a visual toolbar is preferred, launch `shotdock` with no arguments:
+Run `shotdock` without arguments to open the GTK4 LayerShell dock:
 
 ```sh
 shotdock
 ```
 
 - `Escape`: Close dock
-- `Enter`: Trigger capture using currently selected mode
-- Click any button to trigger the corresponding capture mode
-- Click the gear icon to open the settings popover
+- `Enter`: Trigger capture for active mode
+- Click buttons to trigger actions or click gear icon for settings popover

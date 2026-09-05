@@ -1,36 +1,30 @@
 # shotdock
 
-**Modern, CLI-first Wayland screen capture, studio framing, and recording suite**  
-*(Hyprland, Sway, Niri, River, Wayfire)*
+Wayland screenshot and screen recording tool with window framing and an optional floating dock.
 
-*A fast, modular replacement for `grimblast` and capture scripts with an integrated CleanShot X aesthetic pipeline and optional floating toolbar.*
+Supports Hyprland, Sway, River, Niri, and other Wayland compositors.
 
 ![shotdock demo](images/demo.gif)
-
-`shotdock` is built to be **CLI-first**. It allows you to trigger instantaneous raw snips, frozen screen selections, OCR text extraction, or studio-grade presentation cards directly from your terminal, scripts, or compositor keybindings. When you want visual controls, launch the optional GTK4 LayerShell dock.
 
 ---
 
 ## Showcase
 
-| Presentation Canvas | Framed Window | Floating Dock |
+| Canvas Background | Window Framing | Floating Dock |
 |:---:|:---:|:---:|
 | ![Canvas Theme](images/canvas_presentation.png) | ![Framed Window](images/framed_window.png) | ![Floating Dock](images/toolbar.png) |
 
 ---
 
-## Key Highlights
+## Features
 
-- **CLI-First Architecture**: Sub-150ms instant execution. Invoke captures headlessly without GUI startup latency.
-- **Your Binds, Your Rules**: `shotdock` never enforces keybindings. You choose which shortcuts in your compositor map to which commands.
-- **Raw Snips & Studio Cards in One Tool**:
-  - Run `shotdock -a` for clean, unadorned snips piped directly to clipboard or your annotation editor (`satty`/`swappy`).
-  - Run `shotdock -w` to produce polished cards with 16px rounded corners, multi-pass Gaussian drop shadows, mock titlebars, and wallpaper gradients.
-- **Screen Freeze Selection**: Freeze screen animations and video playback during area selection via `--freeze` (`hyprpicker`).
-- **Interactive Screen Recording**: 60 FPS visually lossless MP4 recording with an interactive target selector (choose monitor, window, or region) and clipboard file path copying.
-- **Offline Headless Framing**: Frame existing image files from terminal or CI/CD via `shotdock frame <file>`.
-- **OCR Text Extraction**: Snip any text on screen to extract plain text directly to your Wayland clipboard via Tesseract.
-- **Optional Floating Dock**: Launch `shotdock` without flags whenever you prefer an anchored, glassmorphism floating toolbar.
+- **Area & Window Snip**: Interactive region selection with window snapping (`slurp`).
+- **Window Framing**: Rounded corners, Gaussian drop shadow, macOS-style titlebar, and gradient canvas backdrops.
+- **Offline Framing**: Frame existing image files via `shotdock frame <file>`.
+- **Screen Freeze**: Freeze screen content during area selection (`hyprpicker`).
+- **Screen Recording**: 60 FPS H.264 video recording with monitor, window, or region selector (`wf-recorder`).
+- **OCR Text Extraction**: Extract text from screen directly to Wayland clipboard (`tesseract`).
+- **Optional Floating Dock**: GTK4 LayerShell toolbar for quick visual access.
 
 ---
 
@@ -39,22 +33,24 @@
 ### Installation
 
 ```sh
-# On Arch Linux (AUR)
 yay -S shotdock
 ```
 
-### Direct CLI Capture
+### CLI Capture
 
 ```sh
-# Clean area selection (click window or drag region)
+# Snip region or click window
 shotdock -a
 
-# Studio framed window or area (shadows + titlebar + canvas)
+# Capture window or region with framing
 shotdock -w
 
-# Fullscreen capture
+# Capture focused monitor
 shotdock -f
 
 # Extract text to clipboard (OCR)
 shotdock -t
+
+# Toggle screen recording
+shotdock -r
 ```

@@ -50,6 +50,7 @@ fn print_help() {
     println!("  -t, --text        Extract text from selected area (OCR)");
     println!("  -r, --record      Toggle screen recording (60 FPS)");
     println!("  --record-area     Toggle area screen recording");
+    println!("  -v, --version     Print version information");
     println!("  -h, --help        Show this help message");
     println!();
     println!("Frame Subcommand:");
@@ -160,9 +161,50 @@ fn main() {
             return;
         }
 
+        if has_flag("-v", "--version") {
+            println!("shotdock {}", env!("CARGO_PKG_VERSION"));
+            return;
+        }
+
         if has_flag("-h", "--help") {
             print_help();
             return;
+        }
+
+        let valid_flags = [
+            "-a",
+            "--area",
+            "-w",
+            "--window",
+            "-f",
+            "--full",
+            "-p",
+            "--all",
+            "-z",
+            "--freeze",
+            "-e",
+            "--edit",
+            "--no-edit",
+            "--no-editor",
+            "--no-shadow",
+            "--no-titlebar",
+            "-t",
+            "--text",
+            "-r",
+            "--record",
+            "--record-area",
+            "-h",
+            "--help",
+            "-v",
+            "--version",
+        ];
+
+        for arg in &args[1..] {
+            if arg.starts_with('-') && !valid_flags.contains(&arg.as_str()) {
+                eprintln!("shotdock: unrecognized option '{}'", arg);
+                eprintln!("Try 'shotdock --help' for more information.");
+                std::process::exit(1);
+            }
         }
 
         if has_flag("-p", "--all") {

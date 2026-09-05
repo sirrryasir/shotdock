@@ -746,7 +746,7 @@ fn toggle_screen_recording(is_area: bool, config: &Config) {
                     "-t",
                     "3000",
                     "Recording Started",
-                    "Press SUPER + R to stop recording.",
+                    "Run shotdock -r again to stop.",
                 ])
                 .spawn();
         }
