@@ -39,6 +39,15 @@ Install recommended optional dependencies on Arch:
 sudo pacman -S hyprpicker tesseract tesseract-data-eng wf-recorder swappy rofi
 ```
 
+### Pre-compiled Binary (Generic Linux x86_64)
+
+Download the standalone tarball from [GitHub Releases](https://github.com/sirrryasir/shotdock/releases/latest):
+
+```sh
+tar -xzf shotdock-v0.1.4-x86_64-linux.tar.gz
+sudo install -Dm755 shotdock /usr/local/bin/shotdock
+```
+
 ### Fedora
 
 ```sh

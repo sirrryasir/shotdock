@@ -37,6 +37,15 @@ yay -S shotdock
 # or paru -S shotdock
 ```
 
+### Pre-compiled Binary (Linux x86_64)
+
+Download the standalone binary from the [latest GitHub Release](https://github.com/sirrryasir/shotdock/releases/latest):
+
+```sh
+tar -xzf shotdock-v0.1.4-x86_64-linux.tar.gz
+sudo install -Dm755 shotdock /usr/local/bin/shotdock
+```
+
 ### From Source
 
 ```sh
